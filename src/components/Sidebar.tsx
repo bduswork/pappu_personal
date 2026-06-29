@@ -54,12 +54,12 @@ function NavItem({
           aria-hidden
           className="absolute inset-0 origin-left bg-brand-green"
           variants={{ rest: { scaleX: 0 }, hover: { scaleX: 1 } }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         />
       )}
 
       <span
-        className={`relative z-10 transition-colors duration-200 ${
+        className={`relative z-10 transition-colors duration-300 ${
           active ? "text-white" : "text-ink-soft group-hover:text-white"
         }`}
       >
