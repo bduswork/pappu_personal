@@ -33,14 +33,6 @@ const COLLECTIONS: Record<string, Collection> = {
       { title: "ICT Expo Keynote", meta: "Past · Dhaka", active: true },
     ],
   },
-  books: {
-    label: "Books",
-    description: "Published titles with purchase links.",
-    appearsOn: ["The Book"],
-    items: [
-      { title: "One-Focus: The Entrepreneur's Discipline", meta: "3 buy links", active: true },
-    ],
-  },
   videos: {
     label: "Videos",
     description: "YouTube videos for the Podcast & Videos page.",
