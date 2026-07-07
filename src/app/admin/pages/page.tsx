@@ -38,6 +38,10 @@ const EDITORS: Record<string, string> = {
   "/blog": "/admin/pages/blog",
   "/podcast": "/admin/pages/podcast",
   "/resources": "/admin/pages/resources",
+  "/ventures/zariya-living": "/admin/pages/ventures/zariya-living",
+  "/ventures/heritique": "/admin/pages/ventures/heritique",
+  "/ventures/ava": "/admin/pages/ventures/ava",
+  "/ventures/invest": "/admin/pages/ventures/invest",
 };
 
 // Mock publish status + which collection a page pulls from (design only).
