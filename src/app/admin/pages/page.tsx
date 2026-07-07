@@ -35,6 +35,9 @@ const EDITORS: Record<string, string> = {
   "/press-kit": "/admin/pages/press-kit",
   "/speaking": "/admin/pages/speaking",
   "/the-book": "/admin/pages/the-book",
+  "/blog": "/admin/pages/blog",
+  "/podcast": "/admin/pages/podcast",
+  "/resources": "/admin/pages/resources",
 };
 
 // Mock publish status + which collection a page pulls from (design only).
