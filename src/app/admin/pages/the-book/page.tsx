@@ -1,188 +1,204 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
+import EditorHeader from "@/components/admin/EditorHeader";
+import BlockCard from "@/components/admin/BlockCard";
+import Field from "@/components/admin/Field";
 import ImageField from "@/components/admin/ImageField";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { Card, PageHeader, btnPrimary, btnGhost } from "@/components/admin/ui";
+import { usePageStatus } from "@/components/admin/usePageStatus";
+import {
+  DEFAULT_THE_BOOK,
+  withTheBookDefaults,
+  type BuyLink,
+} from "@/lib/pages/theBook";
 
-type BuyLink = { id: string; label: string; url: string };
-
-// Self-contained single-book page (no Books collection). Placeholder content —
-// The Book isn't covered by the résumé, so this is a scaffold to fill.
-const INITIAL_DESC =
-  "<p>A practical guide to building a focused, disciplined business — drawn from two decades architecting large-scale systems and mentoring founders through One-Focus.</p>";
-
-let bid = 3;
+let seq = 0;
+const uid = () => `b-${Date.now().toString(36)}-${seq++}`;
 
 export default function TheBookEditor() {
-  const [banner, setBanner] = useState("");
-  const [bannerText, setBannerText] = useState(
-    "In addition to leading technology teams, ABM Whaiduzzaman shares his focus philosophy in book form."
-  );
-  const [cover, setCover] = useState("");
-  const [title, setTitle] = useState("One-Focus");
-  const [subtitle, setSubtitle] = useState("The Entrepreneur's Discipline");
-  const [, setDescription] = useState(INITIAL_DESC);
-  const [links, setLinks] = useState<BuyLink[]>([
-    { id: "1", label: "Amazon", url: "" },
-    { id: "2", label: "Barnes & Noble", url: "" },
-  ]);
+  const [banner, setBanner] = useState(DEFAULT_THE_BOOK.banner);
+  const [cover, setCover] = useState(DEFAULT_THE_BOOK.cover);
+  const [title, setTitle] = useState(DEFAULT_THE_BOOK.title);
+  const [subtitle, setSubtitle] = useState(DEFAULT_THE_BOOK.subtitle);
+  const [description, setDescription] = useState(DEFAULT_THE_BOOK.description);
+  const [highlights, setHighlights] = useState<string[]>(DEFAULT_THE_BOOK.highlights);
+  const [buyLinks, setBuyLinks] = useState<BuyLink[]>(DEFAULT_THE_BOOK.buyLinks);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const ps = usePageStatus("/the-book");
+
+  useEffect(() => {
+    fetch("/api/pages/the-book")
+      .then((r) => r.json())
+      .then((d) => {
+        const c = withTheBookDefaults(d);
+        setBanner(c.banner);
+        setCover(c.cover);
+        setTitle(c.title);
+        setSubtitle(c.subtitle);
+        setDescription(c.description);
+        setHighlights(c.highlights);
+        setBuyLinks(c.buyLinks);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const updateLink = (id: string, field: "label" | "url", value: string) =>
-    setLinks((ls) =>
-      ls.map((l) => (l.id === id ? { ...l, [field]: value } : l))
-    );
+    setBuyLinks((ls) => ls.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
+
+  async function save() {
+    setSaving(true);
+    setSaved(false);
+    try {
+      const res = await fetch("/api/pages/the-book", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          banner,
+          cover,
+          title,
+          subtitle,
+          description,
+          highlights: highlights.filter(Boolean),
+          buyLinks,
+        }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div>
-      <Link
-        href="/admin/pages"
-        className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-ink-soft hover:text-ink"
-      >
-        ← Back to Pages
-      </Link>
-
-      <PageHeader
+      <EditorHeader
         title="Edit: The Book"
-        description="A single self-contained book page — cover, title, description and buy links. No separate collection."
-        action={
-          <div className="flex gap-2">
-            <Link href="/the-book" target="_blank" className={btnGhost}>
-              <AdminIcon name="external" className="h-4 w-4" />
-              View page
-            </Link>
-            <button type="button" className={btnPrimary}>
-              Save changes
-            </button>
-          </div>
-        }
+        description="A single self-contained book page — cover, title, description, highlights and buy links."
+        viewHref="/the-book"
+        onSave={save}
+        saving={saving}
+        saved={saved}
+        status={ps.status}
+        onStatusChange={ps.change}
       />
 
-      <p className="mb-5 rounded-lg border border-brand-blue-soft bg-brand-blue-tint px-3 py-2 text-xs text-brand-blue-dark">
-        Placeholder content — fill in the real book details. Choose a cover file
-        to preview it (upload activates with Firebase Storage).
-      </p>
-
-      {/* Banner — background image + intro line, like the live site */}
-      <Card className="mb-6 p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <span className="rounded bg-brand-blue-tint px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand-blue-dark">
-            Banner
-          </span>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-[200px_1fr]">
-          <ImageField
-            value={banner}
-            onChange={setBanner}
-            label="Banner image"
-            boxClass="aspect-video w-full"
-          />
-          <label className="block">
-            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-              Banner text
-            </span>
-            <textarea
-              value={bannerText}
-              onChange={(e) => setBannerText(e.target.value)}
-              rows={3}
-              className="w-full resize-y rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-green"
-            />
-          </label>
-        </div>
-      </Card>
-
-      <Card className="p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <span className="rounded bg-brand-blue-tint px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand-blue-dark">
-            Book
-          </span>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-[180px_1fr]">
-          {/* Cover */}
-          <ImageField
-            value={cover}
-            onChange={setCover}
-            label="Cover"
-            boxClass="aspect-[3/4] w-full"
-          />
-
-          {/* Details */}
-          <div className="space-y-4">
-            <label className="block">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                Title
-              </span>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand-green"
+      {loading ? (
+        <p className="text-sm text-ink-faint">Loading…</p>
+      ) : (
+        <>
+          {/* Banner */}
+          <BlockCard label="Banner">
+            <div className="grid gap-4 lg:grid-cols-[200px_1fr]">
+              <ImageField
+                value={banner.image}
+                onChange={(v) => setBanner((b) => ({ ...b, image: v }))}
+                label="Banner image"
+                boxClass="aspect-video w-full"
               />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                Subtitle
-              </span>
-              <input
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-green"
+              <Field
+                label="Banner text"
+                textarea
+                value={banner.text}
+                onChange={(v) => setBanner((b) => ({ ...b, text: v }))}
               />
-            </label>
-            <div>
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                Description
-              </span>
-              <RichTextEditor initialHTML={INITIAL_DESC} onChange={setDescription} />
             </div>
-          </div>
-        </div>
+          </BlockCard>
 
-        {/* Buy links */}
-        <div className="mt-6 border-t border-line pt-5">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-            Buy links
-          </span>
-          <div className="space-y-2">
-            {links.map((l) => (
-              <div key={l.id} className="flex items-center gap-2">
-                <input
-                  value={l.label}
-                  onChange={(e) => updateLink(l.id, "label", e.target.value)}
-                  placeholder="Store (e.g. Amazon)"
-                  className="w-40 rounded-lg border border-line bg-white px-3 py-2 text-sm font-medium text-ink outline-none focus:border-brand-green"
-                />
-                <input
-                  value={l.url}
-                  onChange={(e) => updateLink(l.id, "url", e.target.value)}
-                  placeholder="https://…"
-                  className="flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-green"
-                />
-                <button
-                  type="button"
-                  onClick={() => setLinks((ls) => ls.filter((x) => x.id !== l.id))}
-                  className="rounded-md p-1.5 text-ink-faint hover:bg-red-50 hover:text-red-500"
-                  aria-label="Remove buy link"
-                >
-                  <AdminIcon name="trash" className="h-[18px] w-[18px]" />
-                </button>
+          {/* Book */}
+          <BlockCard label="Book">
+            <div className="grid gap-6 md:grid-cols-[180px_1fr]">
+              <ImageField value={cover} onChange={setCover} label="Cover" boxClass="aspect-[3/4] w-full" />
+              <div className="space-y-4">
+                <Field label="Title" value={title} onChange={setTitle} />
+                <Field label="Subtitle" value={subtitle} onChange={setSubtitle} />
+                <div>
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                    Description
+                  </span>
+                  <RichTextEditor initialHTML={description} onChange={setDescription} />
+                </div>
               </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              setLinks((ls) => [...ls, { id: `b${bid++}`, label: "", url: "" }])
-            }
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue hover:text-brand-blue-dark"
-          >
-            <AdminIcon name="plus" className="h-4 w-4" />
-            Add buy link
-          </button>
-        </div>
-      </Card>
+            </div>
+
+            {/* Buy links */}
+            <div className="mt-6 border-t border-line pt-5">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                Buy links
+              </span>
+              <div className="space-y-2">
+                {buyLinks.map((l) => (
+                  <div key={l.id} className="flex items-center gap-2">
+                    <input
+                      value={l.label}
+                      onChange={(e) => updateLink(l.id, "label", e.target.value)}
+                      placeholder="Store (e.g. Amazon)"
+                      className="w-40 rounded-lg border border-line bg-white px-3 py-2 text-sm font-medium text-ink outline-none focus:border-brand-green"
+                    />
+                    <input
+                      value={l.url}
+                      onChange={(e) => updateLink(l.id, "url", e.target.value)}
+                      placeholder="https://…"
+                      className="flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-green"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBuyLinks((ls) => ls.filter((x) => x.id !== l.id))}
+                      className="rounded-md p-1.5 text-ink-faint hover:bg-red-50 hover:text-red-500"
+                      aria-label="Remove buy link"
+                    >
+                      <AdminIcon name="trash" className="h-[18px] w-[18px]" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setBuyLinks((ls) => [...ls, { id: uid(), label: "", url: "" }])}
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue hover:text-brand-blue-dark"
+              >
+                <AdminIcon name="plus" className="h-4 w-4" /> Add buy link
+              </button>
+            </div>
+          </BlockCard>
+
+          {/* What's inside */}
+          <BlockCard label="What's inside" hint="highlights / what readers learn">
+            <div className="space-y-2">
+              {highlights.map((h, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    value={h}
+                    onChange={(e) => setHighlights((xs) => xs.map((x, j) => (j === i ? e.target.value : x)))}
+                    className="flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand-green"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setHighlights((xs) => xs.filter((_, j) => j !== i))}
+                    className="rounded-md p-1.5 text-ink-faint hover:bg-red-50 hover:text-red-500"
+                    aria-label="Remove highlight"
+                  >
+                    <AdminIcon name="trash" className="h-[18px] w-[18px]" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setHighlights((xs) => [...xs, "New highlight"])}
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue hover:text-brand-blue-dark"
+            >
+              <AdminIcon name="plus" className="h-4 w-4" /> Add highlight
+            </button>
+          </BlockCard>
+        </>
+      )}
     </div>
   );
 }
