@@ -4,9 +4,11 @@
  * page by registering its `withDefaults` here. (Client-safe: no Prisma.)
  */
 import { withBuildsDefaults } from "./pages/buildsSoftware";
+import { withMyStoryDefaults } from "./pages/myStory";
 
 export const PAGE_REGISTRY: Record<string, (v: unknown) => unknown> = {
   "builds-software": withBuildsDefaults,
+  "my-story": withMyStoryDefaults,
 };
 
 /** Settings-table key for a page's stored content. */

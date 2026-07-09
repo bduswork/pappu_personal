@@ -66,14 +66,17 @@ export default async function BuildsSoftwarePage() {
         </div>
       </section>
 
-      {/* ── Role groups ────────────────────────────── */}
+      {/* ── Role groups (table grid + hover reveal) ─── */}
       <div className="mx-auto max-w-6xl px-6 py-16 lg:px-12">
         {groups.map((group) => (
-          <section key={group.id} className="mb-14 last:mb-0">
-            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-ink-faint">
+          <section key={group.id} className="mb-16 last:mb-0">
+            <h2 className="inline-block rounded bg-brand-green-soft px-3 py-1 text-sm font-extrabold uppercase tracking-wide text-brand-green-dark">
               {group.heading}
             </h2>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+            {/* Cells share 1px lines via the container background showing
+                through gap-px; partial rows read as faint empty cells. */}
+            <div className="mt-6 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
               {group.cards.map((card) => {
                 const Wrapper = card.link ? "a" : "div";
                 return (
@@ -86,68 +89,73 @@ export default async function BuildsSoftwarePage() {
                           rel: "noopener noreferrer",
                         }
                       : {})}
-                    className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-300 ${
-                      card.link
-                        ? "hover:-translate-y-1.5 hover:border-brand-blue-soft hover:shadow-[0_16px_40px_-16px_rgba(2,132,199,0.35)]"
-                        : "hover:border-brand-blue-soft hover:shadow-[0_16px_40px_-16px_rgba(2,132,199,0.22)]"
-                    }`}
+                    className="group relative flex min-h-[210px] flex-col items-center justify-center overflow-hidden bg-white p-6 text-center"
                   >
+                    {/* Hover wash (light brand gradient) */}
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 bg-gradient-to-br from-brand-blue-tint via-white to-brand-green-tint"
+                    />
                     {/* Accent bar on hover */}
                     <span
                       aria-hidden
-                      className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-blue to-brand-green transition-transform duration-300 group-hover:scale-x-100"
+                      className="absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-blue to-brand-green transition-transform duration-500 group-hover:scale-x-100"
                     />
 
-                    <div className="flex items-start justify-between gap-3">
-                      {/* Logo tile */}
-                      <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-slate-50">
-                        {card.logo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={card.logo}
-                            alt={card.title}
-                            className="h-full w-full object-contain p-1.5"
-                          />
-                        ) : (
-                          <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-blue to-brand-blue-dark text-xl font-extrabold text-white">
-                            {card.title.charAt(0) || "•"}
-                          </span>
-                        )}
-                      </span>
-
-                      {card.badge && (
-                        <span className="shrink-0 rounded-full bg-brand-blue-tint px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-blue-dark">
-                          {card.badge}
+                    <div className="relative z-10 flex w-full flex-col items-center">
+                      {/* Identity: logo, else wordmark */}
+                      {card.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={card.logo}
+                          alt={card.title}
+                          className="h-12 w-auto max-w-[8rem] object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <span className="text-lg font-extrabold uppercase tracking-wide text-ink transition-colors duration-300 group-hover:text-brand-blue">
+                          {card.title}
                         </span>
                       )}
-                    </div>
 
-                    <h3 className="mt-4 text-lg font-extrabold leading-snug tracking-tight text-ink">
-                      {card.title}
-                    </h3>
-                    {card.description && (
-                      <p className="mt-2 flex-1 text-[13px] leading-relaxed text-ink-soft">
-                        {card.description}
-                      </p>
-                    )}
-                    {card.link && (
-                      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue">
-                        Visit
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4 transition-transform group-hover:translate-x-1"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path
-                            d="M5 12h14M13 6l6 6-6 6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    )}
+                      {/* Reveal: badge + description slide/fade in on hover */}
+                      <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-500 group-hover:mt-3 group-hover:grid-rows-[1fr] group-hover:opacity-100">
+                        <div className="overflow-hidden">
+                          {card.badge && (
+                            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-blue">
+                              {card.badge}
+                            </p>
+                          )}
+                          {card.logo && (
+                            <p className="mt-1 text-sm font-bold text-ink">
+                              {card.title}
+                            </p>
+                          )}
+                          {card.description && (
+                            <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
+                              {card.description}
+                            </p>
+                          )}
+                          {card.link && (
+                            <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-blue">
+                              Visit
+                              <svg
+                                viewBox="0 0 24 24"
+                                className="h-3.5 w-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <path
+                                  d="M5 12h14M13 6l6 6-6 6"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </Wrapper>
                 );
               })}
