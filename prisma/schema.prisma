@@ -56,6 +56,7 @@ enum MediaKind {
 }
 
 enum MediaProvider {
+  DATABASE
   FIREBASE
   YOUTUBE
   EXTERNAL
@@ -161,12 +162,16 @@ model Block {
 // Media library
 // ---------------------------------------------------------------------------
 
-/// Reusable media: Firebase-hosted images/files and YouTube references.
+/// Reusable media. For DATABASE provider the image bytes live in `data`
+/// (served via /api/media/[id]); `url` holds external/YouTube references.
 model MediaAsset {
   id        String        @id @default(cuid())
-  url       String
+  url       String?
+  /// Raw image bytes (bytea) for DATABASE-stored media.
+  data      Bytes?
+  mimeType  String?
   kind      MediaKind     @default(IMAGE)
-  provider  MediaProvider @default(FIREBASE)
+  provider  MediaProvider @default(DATABASE)
   alt       String?
   /// Set for YOUTUBE provider — the parsed video id for embedding.
   youtubeId String?
