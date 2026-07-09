@@ -5,10 +5,12 @@
  */
 import { withBuildsDefaults } from "./pages/buildsSoftware";
 import { withMyStoryDefaults } from "./pages/myStory";
+import { withNexalinxAslDefaults } from "./pages/nexalinxAsl";
 
 export const PAGE_REGISTRY: Record<string, (v: unknown) => unknown> = {
   "builds-software": withBuildsDefaults,
   "my-story": withMyStoryDefaults,
+  "nexalinx-asl": withNexalinxAslDefaults,
 };
 
 /** Settings-table key for a page's stored content. */

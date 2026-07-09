@@ -103,35 +103,33 @@ export default async function BuildsSoftwarePage() {
                     />
 
                     <div className="relative z-10 flex w-full flex-col items-center">
-                      {/* Identity: logo, else wordmark */}
-                      {card.logo ? (
+                      {/* Logo (if provided) — always visible */}
+                      {card.logo && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={card.logo}
                           alt={card.title}
-                          className="h-12 w-auto max-w-[8rem] object-contain transition-transform duration-300 group-hover:scale-105"
+                          className="mb-3 h-12 w-auto max-w-[8rem] object-contain transition-transform duration-300 group-hover:scale-105"
                         />
-                      ) : (
-                        <span className="text-lg font-extrabold uppercase tracking-wide text-ink transition-colors duration-300 group-hover:text-brand-blue">
-                          {card.title}
-                        </span>
                       )}
 
-                      {/* Reveal: badge + description slide/fade in on hover */}
-                      <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-500 group-hover:mt-3 group-hover:grid-rows-[1fr] group-hover:opacity-100">
+                      {/* Title — always visible */}
+                      <h3 className="text-lg font-extrabold tracking-tight text-ink transition-colors duration-300 group-hover:text-brand-blue">
+                        {card.title}
+                      </h3>
+
+                      {/* Badge / date — always visible */}
+                      {card.badge && (
+                        <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-blue">
+                          {card.badge}
+                        </p>
+                      )}
+
+                      {/* Description + link — reveal on hover */}
+                      <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-500 group-hover:mt-2.5 group-hover:grid-rows-[1fr] group-hover:opacity-100">
                         <div className="overflow-hidden">
-                          {card.badge && (
-                            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-blue">
-                              {card.badge}
-                            </p>
-                          )}
-                          {card.logo && (
-                            <p className="mt-1 text-sm font-bold text-ink">
-                              {card.title}
-                            </p>
-                          )}
                           {card.description && (
-                            <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
+                            <p className="text-xs leading-relaxed text-ink-soft">
                               {card.description}
                             </p>
                           )}

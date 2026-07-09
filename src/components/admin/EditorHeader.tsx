@@ -7,10 +7,16 @@ export default function EditorHeader({
   title,
   description,
   viewHref,
+  onSave,
+  saving,
+  saved,
 }: {
   title: string;
   description: string;
   viewHref: string;
+  onSave?: () => void;
+  saving?: boolean;
+  saved?: boolean;
 }) {
   return (
     <>
@@ -24,13 +30,23 @@ export default function EditorHeader({
         title={title}
         description={description}
         action={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3">
+            {saved && (
+              <span className="text-sm font-semibold text-brand-green">
+                Saved ✓
+              </span>
+            )}
             <Link href={viewHref} target="_blank" className={btnGhost}>
               <AdminIcon name="external" className="h-4 w-4" />
               View page
             </Link>
-            <button type="button" className={btnPrimary}>
-              Save changes
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={saving}
+              className={`${btnPrimary} disabled:opacity-60`}
+            >
+              {saving ? "Saving…" : "Save changes"}
             </button>
           </div>
         }
