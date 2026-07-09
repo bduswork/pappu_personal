@@ -23,16 +23,31 @@ export type TrainingGroup = {
   programs: NavLink[];
 };
 
-export type NavSection = {
+/**
+ * The editable half of a section — what the admin Sections screen manages and
+ * persists to the database (Setting key "nav"). The page links themselves live
+ * in code (SECTION_CONTENT) for now, keyed by `key`, and become editable during
+ * the per-page dynamic work.
+ */
+export type NavSectionMeta = {
+  key: string;
   title: string;
   tagline: string;
   accent: "green" | "blue";
+  isActive: boolean;
+};
+
+/** The code-defined page links for a section. */
+export type SectionContent = {
   links: NavLink[];
   /** Optional "Programs and Master Classes" dropdown, rendered after `links`. */
   training?: TrainingGroup;
   /** Links rendered after the dropdown (e.g. The Book, Blog, Podcast…). */
   linksAfter?: NavLink[];
 };
+
+/** A fully-resolved sidebar section: editable meta + its page links. */
+export type NavSection = NavSectionMeta & SectionContent;
 
 export const BRAND = {
   name: "ABM WHAIDUZZAMAN",
@@ -44,6 +59,8 @@ export const CONTACT_LINK: NavLink = { label: "Contact", href: "/contact" };
 
 export const NAV_SECTIONS: NavSection[] = [
   {
+    key: "abm",
+    isActive: true,
     title: "ABM WHAIDUZZAMAN",
     tagline: "builds technology",
     accent: "blue",
@@ -71,6 +88,8 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    key: "ventures",
+    isActive: true,
     title: "VENTURES",
     tagline: "creates brands",
     accent: "blue",
@@ -82,6 +101,61 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
 ];
+
+/** Code-defined page links, keyed by section `key`. */
+export const SECTION_CONTENT: Record<string, SectionContent> = Object.fromEntries(
+  NAV_SECTIONS.map((s) => [
+    s.key,
+    { links: s.links, training: s.training, linksAfter: s.linksAfter },
+  ])
+);
+
+/** How many pages a section owns (links + after-links; the training dropdown
+ *  is a program list, not a page — matches the count shown in the sidebar). */
+export function pagesInSection(key: string): number {
+  const c = SECTION_CONTENT[key];
+  if (!c) return 0;
+  return c.links.length + (c.linksAfter?.length ?? 0);
+}
+
+/** The editable defaults, derived from the code sections above. */
+export const DEFAULT_NAV_META: NavSectionMeta[] = NAV_SECTIONS.map(
+  ({ key, title, tagline, accent, isActive }) => ({
+    key,
+    title,
+    tagline,
+    accent,
+    isActive,
+  })
+);
+
+export type NavData = { sections: NavSectionMeta[] };
+
+/** Merge stored nav meta over defaults so the shape always stays valid. */
+export function withNavDefaults(value: unknown): NavData {
+  const v = (value ?? {}) as Partial<NavData>;
+  const sections =
+    Array.isArray(v.sections) && v.sections.length > 0
+      ? (v.sections as NavSectionMeta[]).map(
+          (s): NavSectionMeta => ({
+            key: String(s.key ?? ""),
+            title: String(s.title ?? ""),
+            tagline: String(s.tagline ?? ""),
+            accent: s.accent === "green" ? "green" : "blue",
+            isActive: s.isActive !== false,
+          })
+        )
+      : DEFAULT_NAV_META;
+  return { sections };
+}
+
+/** Resolve editable meta + code links into full sidebar sections (active only,
+ *  in stored order). Sections with no code content render header-only. */
+export function resolveNavSections(meta: NavSectionMeta[]): NavSection[] {
+  return meta
+    .filter((m) => m.isActive)
+    .map((m) => ({ ...m, ...(SECTION_CONTENT[m.key] ?? { links: [] }) }));
+}
 
 export type SocialLink = {
   label: string;

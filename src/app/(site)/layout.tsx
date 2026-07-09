@@ -1,5 +1,8 @@
 import Sidebar from "@/components/Sidebar";
 import { getSettings } from "@/lib/getSettings";
+import { getSidebarSections } from "@/lib/getNav";
+
+export const dynamic = "force-dynamic";
 
 /** Public site layout — fixed left sidebar + optional top banner + content. */
 export default async function SiteLayout({
@@ -7,7 +10,10 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { topBanner } = await getSettings();
+  const [{ topBanner }, sections] = await Promise.all([
+    getSettings(),
+    getSidebarSections(),
+  ]);
   const text = topBanner.text.trim();
   const show = topBanner.enabled && !!text;
 
@@ -21,7 +27,7 @@ export default async function SiteLayout({
 
   return (
     <>
-      <Sidebar />
+      <Sidebar sections={sections} />
       <main className="lg:pl-[var(--sidebar-width)]">
         <div className="pt-16 lg:pt-0">
           {show &&

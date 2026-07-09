@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CONTACT_LINK,
-  NAV_SECTIONS,
   SOCIAL_LINKS,
   type NavLink as NavLinkType,
   type NavSection,
@@ -231,7 +230,13 @@ function PillarAccordion({
   );
 }
 
-function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarBody({
+  sections,
+  onNavigate,
+}: {
+  sections: NavSection[];
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
 
   return (
@@ -243,9 +248,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Pillars (accordion) */}
       <nav className="mt-8 flex flex-col gap-2">
-        {NAV_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <PillarAccordion
-            key={section.title}
+            key={section.key}
             section={section}
             onNavigate={onNavigate}
           />
@@ -305,7 +310,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ sections }: { sections: NavSection[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -345,7 +350,7 @@ export default function Sidebar() {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SidebarBody onNavigate={() => setOpen(false)} />
+        <SidebarBody sections={sections} onNavigate={() => setOpen(false)} />
       </aside>
     </>
   );
