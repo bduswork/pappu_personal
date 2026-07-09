@@ -1,6 +1,6 @@
 "use client";
 
-import type { ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import AdminIcon from "./AdminIcon";
 
 /**
@@ -19,9 +19,29 @@ export default function ImageField({
   label: string;
   boxClass: string;
 }) {
-  function onPick(e: ChangeEvent<HTMLInputElement>) {
+  const [uploading, setUploading] = useState(false);
+
+  async function onPick(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) onChange(URL.createObjectURL(file));
+    if (!file) return;
+    // Instant local preview, then upload to Postgres and swap in the saved URL.
+    onChange(URL.createObjectURL(file));
+    setUploading(true);
+    try {
+      const res = await fetch("/api/media", {
+        method: "POST",
+        headers: { "Content-Type": file.type, "X-Filename": file.name },
+        body: file,
+      });
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) onChange(url);
+      }
+    } catch {
+      // keep the local preview if the upload fails
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
@@ -46,6 +66,11 @@ export default function ImageField({
           <div className="flex flex-col items-center gap-1 text-ink-faint">
             <AdminIcon name="media" className="h-5 w-5" />
             <span className="text-[10px] font-semibold uppercase">{label}</span>
+          </div>
+        )}
+        {uploading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-[11px] font-bold uppercase text-brand-green">
+            Uploading…
           </div>
         )}
       </div>

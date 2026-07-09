@@ -6,6 +6,16 @@
 
 export type BannerType = "image" | "video";
 
+export type Pillar = {
+  id: string;
+  brand: string;
+  title: string;
+  body: string;
+  link: string;
+  cta: string;
+  accent: "green" | "blue";
+};
+
 export type SiteSettings = {
   home: {
     bannerType: BannerType;
@@ -23,6 +33,7 @@ export type SiteSettings = {
   social: Record<string, string>;
   newsletter: { heading: string; provider: string };
   topBanner: { enabled: boolean; text: string; link: string };
+  pillars: Pillar[];
   seo: { title: string; description: string };
   footer: { copyright: string };
 };
@@ -60,12 +71,50 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   social: Object.fromEntries(SOCIAL_PLATFORMS.map((p) => [p, ""])),
   newsletter: { heading: "Sign up for my weekly newsletter", provider: "" },
   topBanner: { enabled: false, text: "", link: "" },
+  pillars: [
+    {
+      id: "p1",
+      brand: "ABM Whaiduzzaman",
+      title: "Builds Technology",
+      body: "Software, products, and platforms — from Nexalinx & ASL to client work and case studies.",
+      link: "/builds-software",
+      cta: "Explore the work",
+      accent: "blue",
+    },
+    {
+      id: "p2",
+      brand: "One-Focus",
+      title: "Trains Entrepreneurs",
+      body: "Programs, masterclasses, the book, podcast, and resources that sharpen founders to a single focus.",
+      link: "/training/one-focus",
+      cta: "Enter One-Focus",
+      accent: "green",
+    },
+    {
+      id: "p3",
+      brand: "Ventures",
+      title: "Creates Brands",
+      body: "Zariya Living, Heritique, AVA, and partnership opportunities for the next generation of brands.",
+      link: "/ventures/zariya-living",
+      cta: "Meet the ventures",
+      accent: "blue",
+    },
+  ],
   seo: {
     title: "ABM Whaiduzzaman",
     description: "Builds technology · trains entrepreneurs · creates brands",
   },
   footer: { copyright: "© ABM Whaiduzzaman 2026" },
 };
+
+/** Extract an 11-char YouTube video id from a URL (watch, youtu.be, embed, shorts). */
+export function youtubeId(url: string): string | null {
+  if (!url) return null;
+  const m = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]{11})/
+  );
+  return m ? m[1] : null;
+}
 
 /** Deep-merge stored settings over defaults so missing keys stay valid. */
 export function withDefaults(value: unknown): SiteSettings {
@@ -76,6 +125,7 @@ export function withDefaults(value: unknown): SiteSettings {
     social: { ...DEFAULT_SETTINGS.social, ...(v.social ?? {}) },
     newsletter: { ...DEFAULT_SETTINGS.newsletter, ...(v.newsletter ?? {}) },
     topBanner: { ...DEFAULT_SETTINGS.topBanner, ...(v.topBanner ?? {}) },
+    pillars: Array.isArray(v.pillars) ? (v.pillars as Pillar[]) : DEFAULT_SETTINGS.pillars,
     seo: { ...DEFAULT_SETTINGS.seo, ...(v.seo ?? {}) },
     footer: { ...DEFAULT_SETTINGS.footer, ...(v.footer ?? {}) },
   };
