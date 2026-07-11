@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/getSettings";
 import { youtubeId } from "@/lib/siteSettings";
+import HeroVideo from "@/components/HeroVideo";
 
 export const dynamic = "force-dynamic";
 
@@ -16,58 +17,80 @@ export default async function Home() {
       {/* Hero */}
       <section
         className={`relative flex flex-col overflow-hidden ${
-          hasMedia ? "min-h-[560px] justify-end lg:min-h-[82vh]" : ""
+          vid
+            ? "lg:aspect-video lg:justify-end"
+            : hasImage
+              ? "min-h-[560px] justify-end lg:min-h-[82vh]"
+              : ""
         }`}
       >
-        {/* Background layer */}
+        {/* Background / video layer */}
         {vid ? (
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <iframe
-              title="Hero video"
-              className="absolute left-1/2 top-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
-              src={`https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&loop=1&playlist=${vid}&controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1`}
-              allow="autoplay; encrypted-media"
-            />
+          // In-flow 16:9 block on mobile; absolute full-bleed background on lg.
+          <div className="relative aspect-video w-full lg:absolute lg:inset-0">
+            <HeroVideo videoId={vid} />
+            {/* Darken only on lg where the text overlays the video */}
+            <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-ink/85 via-ink/40 to-ink/5 lg:block" />
           </div>
         ) : hasImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={h.bannerImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
         ) : null}
 
-        {/* Overlay / fallback background */}
-        {hasMedia ? (
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/40 to-ink/5" />
-        ) : (
+        {/* Overlay / fallback background (image + no-media only) */}
+        {hasImage ? (
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/40 to-ink/5" />
+        ) : !hasMedia ? (
           <div className="absolute inset-0 bg-gradient-to-br from-brand-green-tint via-white to-brand-blue-tint" />
-        )}
+        ) : null}
 
         <div
-          className={`relative w-full max-w-3xl px-6 lg:px-12 ${
-            hasMedia ? "pb-16 pt-32 text-white" : "py-24 text-ink sm:py-32"
+          className={`relative z-10 w-full max-w-3xl px-6 lg:px-12 ${
+            vid
+              ? "py-9 lg:pointer-events-none lg:pb-16 lg:pt-32"
+              : hasImage
+                ? "pointer-events-none pb-16 pt-32 text-white"
+                : "py-24 text-ink sm:py-32"
           }`}
         >
           {h.eyebrow && (
             <p
               className={`text-sm font-semibold uppercase tracking-[0.22em] ${
-                hasMedia ? "text-white/80" : "text-brand-green"
+                vid
+                  ? "text-brand-blue lg:text-white/80"
+                  : hasMedia
+                    ? "text-white/80"
+                    : "text-brand-green"
               }`}
             >
               {h.eyebrow}
             </p>
           )}
-          <h1 className="mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight text-brand-green sm:text-5xl">
+          <h1
+            className={`mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl ${
+              vid
+                ? "text-brand-green lg:text-white lg:[text-shadow:0_2px_18px_rgba(0,0,0,0.45)]"
+                : hasMedia
+                  ? "text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]"
+                  : "text-brand-green"
+            }`}
+          >
             {h.headline}
           </h1>
           {h.subtitle && (
             <p
               className={`mt-6 max-w-2xl text-lg leading-relaxed ${
-                hasMedia ? "text-white/85" : "text-ink-soft"
+                vid
+                  ? "text-ink-soft lg:text-white/85"
+                  : hasMedia
+                    ? "text-white/85"
+                    : "text-ink-soft"
               }`}
             >
               {h.subtitle}
             </p>
           )}
-          <div className="mt-9 flex flex-wrap gap-4">
+          <div className="pointer-events-auto mt-9 flex flex-wrap gap-4">
             {h.cta1Label && (
               <Link
                 href={h.cta1Link || "#"}
@@ -80,9 +103,11 @@ export default async function Home() {
               <Link
                 href={h.cta2Link || "#"}
                 className={`rounded-full border px-6 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${
-                  hasMedia
-                    ? "border-white/40 text-white hover:bg-white hover:text-ink"
-                    : "border-line bg-white text-ink hover:border-brand-blue hover:text-brand-blue"
+                  vid
+                    ? "border-line bg-white text-ink hover:border-brand-blue hover:text-brand-blue lg:border-white/40 lg:bg-transparent lg:text-white lg:hover:bg-white lg:hover:text-ink"
+                    : hasMedia
+                      ? "border-white/40 text-white hover:bg-white hover:text-ink"
+                      : "border-line bg-white text-ink hover:border-brand-blue hover:text-brand-blue"
                 }`}
               >
                 {h.cta2Label}

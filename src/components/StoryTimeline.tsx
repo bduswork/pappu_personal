@@ -1,57 +1,46 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
 import type { Milestone } from "@/lib/pages/myStory";
 
-/** Horizontal timeline carousel — image + year + caption cards with arrows. */
-export default function StoryTimeline({ items }: { items: Milestone[] }) {
-  const trackRef = useRef<HTMLDivElement>(null);
+/** Pixels per second the marquee travels. */
+const SPEED = 45;
 
-  const scroll = (dir: -1 | 1) => {
-    const el = trackRef.current;
-    if (!el) return;
-    // Scroll by roughly one card width.
-    const card = el.querySelector<HTMLElement>("[data-card]");
-    const amount = card ? card.offsetWidth + 20 : el.clientWidth * 0.8;
-    el.scrollBy({ left: dir * amount, behavior: "smooth" });
-  };
+/** Auto-scrolling marquee of timeline cards (pauses on hover). */
+export default function StoryTimeline({ items }: { items: Milestone[] }) {
+  const x = useMotionValue(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [paused, setPaused] = useState(false);
+
+  useAnimationFrame((_, delta) => {
+    if (paused) return;
+    const track = trackRef.current;
+    if (!track) return;
+    const half = track.scrollWidth / 2; // width of one (un-duplicated) set
+    if (half <= 0) return;
+    let next = x.get() - (delta / 1000) * SPEED;
+    if (-next >= half) next += half; // seamless wrap
+    x.set(next);
+  });
 
   if (items.length === 0) return null;
 
-  return (
-    <div className="relative">
-      {/* Arrows */}
-      <button
-        type="button"
-        onClick={() => scroll(-1)}
-        aria-label="Previous"
-        className="absolute -left-3 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full border border-line bg-white text-ink shadow-md transition-colors hover:border-brand-blue hover:text-brand-blue sm:flex sm:h-11 sm:w-11"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-      <button
-        type="button"
-        onClick={() => scroll(1)}
-        aria-label="Next"
-        className="absolute -right-3 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full border border-line bg-white text-ink shadow-md transition-colors hover:border-brand-blue hover:text-brand-blue sm:flex sm:h-11 sm:w-11"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
+  // Duplicate the set so the loop is seamless.
+  const loop = [...items, ...items];
 
-      {/* Track */}
-      <div
-        ref={trackRef}
-        className="scroll-slim flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2"
-      >
-        {items.map((m) => (
+  return (
+    <div
+      className="relative overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <motion.div ref={trackRef} style={{ x }} className="flex w-max gap-5">
+        {loop.map((m, i) => (
           <article
-            data-card
-            key={m.id}
-            className="group relative w-[260px] shrink-0 snap-start overflow-hidden rounded-2xl border border-line sm:w-[300px]"
+            key={`${m.id}-${i}`}
+            aria-hidden={i >= items.length}
+            className="group relative w-[260px] shrink-0 overflow-hidden rounded-2xl border border-line sm:w-[300px]"
           >
             {/* Image or gradient */}
             {m.image ? (
@@ -63,9 +52,7 @@ export default function StoryTimeline({ items }: { items: Milestone[] }) {
               />
             ) : (
               <div className="flex h-[380px] w-full items-center justify-center bg-gradient-to-br from-brand-blue via-brand-blue-dark to-brand-green">
-                <span className="text-6xl font-extrabold text-white/25">
-                  {m.year}
-                </span>
+                <span className="text-6xl font-extrabold text-white/25">{m.year}</span>
               </div>
             )}
 
@@ -83,7 +70,7 @@ export default function StoryTimeline({ items }: { items: Milestone[] }) {
             </div>
           </article>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
