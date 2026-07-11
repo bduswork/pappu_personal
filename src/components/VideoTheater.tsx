@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { youtubeId } from "@/lib/siteSettings";
 
 export type TheaterVideo = {
@@ -10,29 +10,127 @@ export type TheaterVideo = {
   thumbnail?: string;
 };
 
-/** YouTube-style player: a large main video + a clickable list of the rest. */
+/** The player methods we call (window.YT is typed globally by HeroVideo). */
+type VTPlayer = {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  loadVideoById: (id: string) => void;
+  destroy: () => void;
+};
+
+/** YouTube-style player: a main video (tap to play/pause) + a clickable list. */
 export default function VideoTheater({ videos }: { videos: TheaterVideo[] }) {
   const list = videos.filter((v) => youtubeId(v.video));
   const [active, setActive] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [ready, setReady] = useState(false);
+  const mountRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<VTPlayer | null>(null);
+
+  useEffect(() => {
+    if (list.length === 0) return;
+    let cancelled = false;
+    const firstId = youtubeId(list[0].video) ?? "";
+
+    function init() {
+      if (cancelled || !mountRef.current || !window.YT) return;
+      playerRef.current = new window.YT.Player(mountRef.current, {
+        videoId: firstId,
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
+        events: {
+          onReady: () => setReady(true),
+          onStateChange: (e) => {
+            const S = window.YT!.PlayerState;
+            if (e.data === S.PLAYING) setPlaying(true);
+            else if (e.data === S.PAUSED || e.data === S.ENDED) setPlaying(false);
+          },
+        },
+      }) as unknown as VTPlayer;
+    }
+
+    if (window.YT?.Player) {
+      init();
+    } else {
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        prev?.();
+        init();
+      };
+      if (!document.getElementById("youtube-iframe-api")) {
+        const s = document.createElement("script");
+        s.id = "youtube-iframe-api";
+        s.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(s);
+      }
+    }
+
+    return () => {
+      cancelled = true;
+      try {
+        playerRef.current?.destroy();
+      } catch {}
+      playerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list.length]);
 
   if (list.length === 0) return null;
 
   const current = list[Math.min(active, list.length - 1)];
-  const curId = youtubeId(current.video);
+
+  const selectVideo = (i: number) => {
+    setActive(i);
+    const id = youtubeId(list[i].video);
+    if (playerRef.current && id) playerRef.current.loadVideoById(id); // autoplays
+  };
+  const togglePlay = () => {
+    const p = playerRef.current;
+    if (!p) return;
+    if (playing) p.pauseVideo();
+    else p.playVideo();
+  };
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       {/* Main player */}
       <div className="min-w-0">
-        <div className="aspect-video w-full overflow-hidden rounded-2xl border border-line bg-black shadow-lg">
-          <iframe
-            key={curId}
-            className="h-full w-full"
-            src={`https://www.youtube.com/embed/${curId}?rel=0&modestbranding=1&autoplay=1`}
-            title={current.title || "Video"}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-line bg-black shadow-lg">
+          <div ref={mountRef} className="absolute inset-0 [&>iframe]:h-full [&>iframe]:w-full" />
+
+          {/* Tap to play/pause (leaves the native control strip at the bottom free) */}
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={playing ? "Pause" : "Play"}
+            tabIndex={-1}
+            className="absolute inset-x-0 bottom-11 top-0 z-10 cursor-pointer"
           />
+
+          {/* Center play / pause button */}
+          {ready && (
+            <button
+              type="button"
+              onClick={togglePlay}
+              aria-label={playing ? "Pause" : "Play"}
+              className="group absolute inset-x-0 bottom-11 top-0 z-20 flex items-center justify-center"
+            >
+              <span
+                className={`flex h-16 w-16 items-center justify-center rounded-full text-brand-blue shadow-lg transition-all group-hover:scale-110 group-hover:bg-white ${
+                  playing ? "bg-white/70" : "bg-white/90"
+                }`}
+              >
+                {playing ? (
+                  <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor">
+                    <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                )}
+              </span>
+            </button>
+          )}
         </div>
         {current.title && (
           <h3 className="mt-3 text-lg font-bold tracking-tight text-ink">
@@ -57,7 +155,7 @@ export default function VideoTheater({ videos }: { videos: TheaterVideo[] }) {
                 <button
                   key={v.id}
                   type="button"
-                  onClick={() => setActive(i)}
+                  onClick={() => selectVideo(i)}
                   className={`group flex w-full gap-3 rounded-xl border p-2 text-left transition-colors ${
                     activeItem
                       ? "border-brand-blue-soft bg-brand-blue-tint"

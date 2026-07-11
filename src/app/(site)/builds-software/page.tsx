@@ -129,8 +129,8 @@ export default async function BuildsSoftwarePage() {
                         </p>
                       )}
 
-                      {/* Description + link — reveal on hover */}
-                      <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-500 group-hover:mt-2.5 group-hover:grid-rows-[1fr] group-hover:opacity-100">
+                      {/* Description + link — always shown on mobile, reveal on hover on desktop */}
+                      <div className="mt-2.5 grid grid-rows-[1fr] opacity-100 transition-all duration-500 lg:mt-0 lg:grid-rows-[0fr] lg:opacity-0 lg:group-hover:mt-2.5 lg:group-hover:grid-rows-[1fr] lg:group-hover:opacity-100">
                         <div className="overflow-hidden">
                           {card.description && (
                             <p className="text-xs leading-relaxed text-ink-soft">
