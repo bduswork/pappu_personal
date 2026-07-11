@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getSettings } from "@/lib/getSettings";
 
-export const metadata: Metadata = {
-  title: "ABM Whaiduzzaman — builds technology · trains entrepreneurs · creates brands",
-  description:
-    "The official site of ABM Whaiduzzaman: technologist, entrepreneur educator (One-Focus), and brand builder.",
-};
+/** Metadata is dynamic so the favicon follows the uploaded brand signature. */
+export async function generateMetadata(): Promise<Metadata> {
+  const { brand } = await getSettings();
+  return {
+    title:
+      "ABM Whaiduzzaman — builds technology · trains entrepreneurs · creates brands",
+    description:
+      "The official site of ABM Whaiduzzaman: technologist, entrepreneur educator (One-Focus), and brand builder.",
+    icons: brand.signature ? { icon: brand.signature } : undefined,
+  };
+}
 
 export default function RootLayout({
   children,

@@ -20,6 +20,7 @@ const uid = (p: string) => `${p}-${Date.now().toString(36)}-${seq++}`;
 
 export default function PressKitEditor() {
   const [banner, setBanner] = useState(DEFAULT_PRESS_KIT.banner);
+  const [portrait, setPortrait] = useState(DEFAULT_PRESS_KIT.portrait);
   const [bio, setBio] = useState(DEFAULT_PRESS_KIT.bio);
   const [oneSheet, setOneSheet] = useState(DEFAULT_PRESS_KIT.oneSheet);
   const [photos, setPhotos] = useState<Photo[]>(DEFAULT_PRESS_KIT.photos);
@@ -35,6 +36,7 @@ export default function PressKitEditor() {
       .then((d) => {
         const c = withPressKitDefaults(d);
         setBanner(c.banner);
+        setPortrait(c.portrait);
         setBio(c.bio);
         setOneSheet(c.oneSheet);
         setPhotos(c.photos);
@@ -54,7 +56,7 @@ export default function PressKitEditor() {
       const res = await fetch("/api/pages/press-kit", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ banner, bio, oneSheet, photos, press }),
+        body: JSON.stringify({ banner, portrait, bio, oneSheet, photos, press }),
       });
       if (res.ok) {
         setSaved(true);
@@ -96,8 +98,16 @@ export default function PressKitEditor() {
           </BlockCard>
 
           {/* Biography */}
-          <BlockCard label="Biography">
-            <RichTextEditor initialHTML={bio} onChange={setBio} />
+          <BlockCard label="Biography" hint="portrait shows large on the right of the bio">
+            <div className="grid gap-5 lg:grid-cols-[180px_1fr]">
+              <ImageField
+                value={portrait}
+                onChange={setPortrait}
+                label="Portrait photo"
+                boxClass="aspect-[4/5] w-full"
+              />
+              <RichTextEditor initialHTML={bio} onChange={setBio} />
+            </div>
           </BlockCard>
 
           {/* One-sheet */}
@@ -143,6 +153,12 @@ export default function PressKitEditor() {
             <div className="space-y-3">
               {press.map((p) => (
                 <div key={p.id} className="flex gap-3 rounded-lg border border-line p-4">
+                  <ImageField
+                    value={p.image}
+                    onChange={(v) => setPressItem(p.id, "image", v)}
+                    label="Image"
+                    boxClass="aspect-video w-28"
+                  />
                   <div className="grid flex-1 gap-3 sm:grid-cols-2">
                     <Field label="Outlet" value={p.outlet} onChange={(v) => setPressItem(p.id, "outlet", v)} placeholder="The Daily Star" />
                     <Field label="Date" value={p.date} onChange={(v) => setPressItem(p.id, "date", v)} placeholder="Jun 2025" />
@@ -166,7 +182,7 @@ export default function PressKitEditor() {
             </div>
             <button
               type="button"
-              onClick={() => setPress((xs) => [...xs, { id: uid("pr"), outlet: "", title: "New article", date: "", link: "" }])}
+              onClick={() => setPress((xs) => [...xs, { id: uid("pr"), outlet: "", title: "New article", date: "", link: "", image: "" }])}
               className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue hover:text-brand-blue-dark"
             >
               <AdminIcon name="plus" className="h-4 w-4" /> Add press item

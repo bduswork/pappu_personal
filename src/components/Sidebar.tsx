@@ -230,20 +230,31 @@ function PillarAccordion({
   );
 }
 
+/** Uploaded signature image, or the built-in hand-drawn mark as a fallback. */
+function BrandMark({ signature, className }: { signature?: string; className: string }) {
+  if (signature) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={signature} alt="ABM Whaiduzzaman" className={`${className} object-contain object-left`} />;
+  }
+  return <BrandSignature className={`${className} text-white`} />;
+}
+
 function SidebarBody({
   sections,
+  signature,
   onNavigate,
 }: {
   sections: NavSection[];
+  signature?: string;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
 
   return (
     <div className="flex h-full flex-col overflow-y-auto scroll-slim px-7 py-8 text-white">
-      {/* Brand — signature placeholder (admin-editable later) */}
+      {/* Brand — uploaded signature/logo, else the built-in mark */}
       <Link href="/" onClick={onNavigate} className="block">
-        <BrandSignature className="h-12 w-auto text-white" />
+        <BrandMark signature={signature} className="h-12 w-auto" />
       </Link>
 
       {/* Pillars (accordion) */}
@@ -310,7 +321,13 @@ function SidebarBody({
   );
 }
 
-export default function Sidebar({ sections }: { sections: NavSection[] }) {
+export default function Sidebar({
+  sections,
+  signature,
+}: {
+  sections: NavSection[];
+  signature?: string;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -318,7 +335,7 @@ export default function Sidebar({ sections }: { sections: NavSection[] }) {
       {/* Mobile top bar */}
       <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-white/10 bg-sidebar px-5 py-3 lg:hidden">
         <Link href="/" aria-label="Home">
-          <BrandSignature className="h-7 w-auto text-white" />
+          <BrandMark signature={signature} className="h-7 w-auto" />
         </Link>
         <button
           type="button"
@@ -350,7 +367,11 @@ export default function Sidebar({ sections }: { sections: NavSection[] }) {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SidebarBody sections={sections} onNavigate={() => setOpen(false)} />
+        <SidebarBody
+          sections={sections}
+          signature={signature}
+          onNavigate={() => setOpen(false)}
+        />
       </aside>
     </>
   );

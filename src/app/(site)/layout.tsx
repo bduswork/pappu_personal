@@ -10,7 +10,7 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [{ topBanner }, sections] = await Promise.all([
+  const [{ topBanner, brand }, sections] = await Promise.all([
     getSettings(),
     getSidebarSections(),
   ]);
@@ -27,7 +27,7 @@ export default async function SiteLayout({
 
   return (
     <>
-      <Sidebar sections={sections} />
+      <Sidebar sections={sections} signature={brand.signature} />
       <main className="lg:pl-[var(--sidebar-width)]">
         <div className="pt-16 lg:pt-0">
           {show &&

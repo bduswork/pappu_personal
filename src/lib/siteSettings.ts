@@ -17,6 +17,7 @@ export type Pillar = {
 };
 
 export type SiteSettings = {
+  brand: { signature: string };
   home: {
     bannerType: BannerType;
     bannerImage: string;
@@ -49,6 +50,7 @@ export const SOCIAL_PLATFORMS = [
 ] as const;
 
 export const DEFAULT_SETTINGS: SiteSettings = {
+  brand: { signature: "" },
   home: {
     bannerType: "image",
     bannerImage: "",
@@ -120,6 +122,7 @@ export function youtubeId(url: string): string | null {
 export function withDefaults(value: unknown): SiteSettings {
   const v = (value ?? {}) as Partial<SiteSettings>;
   return {
+    brand: { ...DEFAULT_SETTINGS.brand, ...(v.brand ?? {}) },
     home: { ...DEFAULT_SETTINGS.home, ...(v.home ?? {}) },
     contact: { ...DEFAULT_SETTINGS.contact, ...(v.contact ?? {}) },
     social: { ...DEFAULT_SETTINGS.social, ...(v.social ?? {}) },

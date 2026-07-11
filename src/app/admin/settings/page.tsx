@@ -123,6 +123,25 @@ export default function SettingsPage() {
         <p className="text-sm text-ink-faint">Loading settings…</p>
       ) : (
         <div className="space-y-6">
+          {/* ── Brand / signature ── */}
+          <SectionCard
+            title="Brand signature"
+            hint="Your signature / logo — shown at the top of the sidebar and used as the site favicon. Leave empty to keep the built-in signature."
+          >
+            <div className="max-w-md">
+              <ImageField
+                value={s.brand.signature}
+                onChange={(v) => update("brand", { signature: v })}
+                label="Signature / logo"
+                boxClass="aspect-[3/1] w-full bg-sidebar"
+              />
+            </div>
+            <p className="mt-2 text-xs text-ink-faint">
+              Tip: upload a version that reads well on the blue sidebar (white or
+              light artwork on a transparent background).
+            </p>
+          </SectionCard>
+
           {/* ── Home banner ── */}
           <SectionCard title="Home banner" hint="The hero at the top of the home page.">
             <div className="mb-4">
