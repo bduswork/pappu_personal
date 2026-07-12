@@ -23,6 +23,7 @@ export const DEFAULT_PUBLISHED: string[] = [
   "/blog",
   "/podcast",
   "/resources",
+  "/ventures/invest",
 ];
 
 /** The status for an href: stored override wins, else the built-in default. */

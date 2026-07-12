@@ -25,6 +25,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: "Sections", href: "/admin/sections", icon: "sections" },
       { label: "Pages", href: "/admin/pages", icon: "pages" },
       { label: "Programs & Masterclasses", href: "/admin/training", icon: "training" },
+      { label: "Ventures", href: "/admin/ventures", icon: "sections" },
       { label: "Enrollments", href: "/admin/enrollments", icon: "enrollments" },
       { label: "Messages", href: "/admin/messages", icon: "mail" },
     ],

@@ -8,6 +8,7 @@ import {
 import { getPageStatusMap } from "./getPageStatus";
 import { isPublished } from "./pageStatus";
 import { getProgramNavLinks } from "./getPrograms";
+import { getVentureNavLinks } from "./getVentures";
 
 /** Editable section meta (for admin) — reads Setting key "nav", merged w/ defaults. */
 export async function getNavMeta(): Promise<NavSectionMeta[]> {
@@ -18,16 +19,21 @@ export async function getNavMeta(): Promise<NavSectionMeta[]> {
 /** Fully-resolved sidebar sections (active only, ordered, published links only,
  *  with the Programs dropdown filled from published programs in the DB). */
 export async function getSidebarSections(): Promise<NavSection[]> {
-  const [meta, status, programLinks] = await Promise.all([
+  const [meta, status, programLinks, ventureLinks] = await Promise.all([
     getNavMeta(),
     getPageStatusMap(),
     getProgramNavLinks(),
+    getVentureNavLinks(),
   ]);
   const pub = (href: string) => isPublished(status, href);
   return resolveNavSections(meta)
     .map((s) => ({
       ...s,
-      links: s.links.filter((l) => pub(l.href)),
+      // Ventures: live brand pages first, then the fixed (published) links.
+      links:
+        s.key === "ventures"
+          ? [...ventureLinks, ...s.links.filter((l) => pub(l.href))]
+          : s.links.filter((l) => pub(l.href)),
       linksAfter: s.linksAfter?.filter((l) => pub(l.href)),
       // Replace the code-defined program list with the live published programs.
       training:

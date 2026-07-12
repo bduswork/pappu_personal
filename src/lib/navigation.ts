@@ -96,12 +96,9 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "VENTURES",
     tagline: "creates brands",
     accent: "blue",
-    links: [
-      { label: "Zariya Living", href: "/ventures/zariya-living" },
-      { label: "Heritique", href: "/ventures/heritique" },
-      { label: "AVA", href: "/ventures/ava" },
-      { label: "Invest & Partner", href: "/ventures/invest" },
-    ],
+    // Brand ventures are injected dynamically (getSidebarSections); Invest &
+    // Partner is a fixed page kept here.
+    links: [{ label: "Invest & Partner", href: "/ventures/invest" }],
   },
 ];
 

@@ -30,7 +30,7 @@ export type SiteSettings = {
     cta2Label: string;
     cta2Link: string;
   };
-  contact: { phone: string; email: string; address: string };
+  contact: { phone: string; email: string; whatsapp: string; address: string };
   social: Record<string, string>;
   newsletter: { heading: string; provider: string };
   topBanner: { enabled: boolean; text: string; link: string };
@@ -68,6 +68,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   contact: {
     phone: "+880 1791-001818",
     email: "pappow@gmail.com",
+    whatsapp: "",
     address: "Kha-116/1, South Badda, Dhaka-1212",
   },
   social: Object.fromEntries(SOCIAL_PLATFORMS.map((p) => [p, ""])),
@@ -108,6 +109,18 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   },
   footer: { copyright: "© ABM Whaiduzzaman 2026" },
 };
+
+/**
+ * Build a wa.me deep link from a phone/WhatsApp number and an optional
+ * pre-filled message. Strips everything but digits (wa.me wants no +, spaces or
+ * dashes). Returns "" if there's no usable number.
+ */
+export function waLink(number: string, text?: string): string {
+  const digits = (number || "").replace(/\D/g, "");
+  if (!digits) return "";
+  const q = text ? `?text=${encodeURIComponent(text)}` : "";
+  return `https://wa.me/${digits}${q}`;
+}
 
 /** Extract an 11-char YouTube video id from a URL (watch, youtu.be, embed, shorts). */
 export function youtubeId(url: string): string | null {

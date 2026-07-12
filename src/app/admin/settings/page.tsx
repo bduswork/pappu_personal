@@ -271,10 +271,14 @@ export default function SettingsPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Phone" value={s.contact.phone} onChange={(v) => update("contact", { phone: v })} />
               <Field label="Email" value={s.contact.email} onChange={(v) => update("contact", { email: v })} />
+              <Field label="WhatsApp number" value={s.contact.whatsapp} onChange={(v) => update("contact", { whatsapp: v })} placeholder="+880 … (falls back to Phone)" />
               <div className="sm:col-span-2">
                 <Field label="Address" value={s.contact.address} onChange={(v) => update("contact", { address: v })} />
               </div>
             </div>
+            <p className="mt-2 text-xs text-ink-faint">
+              Used for the &ldquo;Enroll&rdquo; WhatsApp chat on program pages. If empty, the Phone number is used.
+            </p>
           </SectionCard>
 
           {/* ── Social ── */}

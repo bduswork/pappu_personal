@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProgramBySlug } from "@/lib/getPrograms";
+import { getSettings } from "@/lib/getSettings";
 import { plainBrand } from "@/lib/programs";
 import BrandName from "@/components/BrandName";
 import ProgramCountdown from "@/components/ProgramCountdown";
@@ -27,8 +28,13 @@ export default async function ProgramPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const program = await getProgramBySlug(slug);
+  const [program, settings] = await Promise.all([
+    getProgramBySlug(slug),
+    getSettings(),
+  ]);
   if (!program || !program.published) notFound();
+
+  const whatsappNumber = settings.contact.whatsapp || settings.contact.phone;
 
   const { name, tagline, hero, about, startAt, endAt, modules, snapshots, enrollLabel } =
     program;
@@ -139,13 +145,14 @@ export default async function ProgramPage({
             Book a session
           </h2>
           <p className="mt-2 max-w-2xl text-ink-soft">
-            Enrollment is open while the program runs. Apply below and I&apos;ll reach out on WhatsApp.
+            Enrollment is open while the program runs. Apply below and we&apos;ll continue on WhatsApp.
           </p>
           <div className="mt-6">
             <EnrollForm
               programSlug={slug}
               programName={plainBrand(name)}
               ctaLabel={enrollLabel}
+              whatsappNumber={whatsappNumber}
             />
           </div>
         </section>

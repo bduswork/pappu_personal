@@ -45,9 +45,8 @@ const EDITORS: Record<string, string> = {
   "/blog": "/admin/pages/blog",
   "/podcast": "/admin/pages/podcast",
   "/resources": "/admin/pages/resources",
-  "/ventures/zariya-living": "/admin/pages/ventures/zariya-living",
-  "/ventures/heritique": "/admin/pages/ventures/heritique",
-  "/ventures/ava": "/admin/pages/ventures/ava",
+  // Brand ventures are managed at /admin/ventures (dynamic list); only the
+  // fixed Invest & Partner page is edited from the Pages list.
   "/ventures/invest": "/admin/pages/ventures/invest",
 };
 
