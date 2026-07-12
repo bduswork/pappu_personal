@@ -13,6 +13,7 @@ import {
 } from "@/lib/navigation";
 import SocialIcon from "./SocialIcon";
 import BrandSignature from "./BrandSignature";
+import ProgramMiniBadge from "./ProgramMiniBadge";
 
 const MotionLink = motion.create(Link);
 
@@ -31,6 +32,7 @@ function NavItem({
   active,
   onNavigate,
   prominent = false,
+  trailing,
 }: {
   link: NavLinkType;
   accent: NavSection["accent"];
@@ -38,6 +40,8 @@ function NavItem({
   onNavigate?: () => void;
   /** Larger text (like a heading) — used for the standalone Contact link. */
   prominent?: boolean;
+  /** Optional right-aligned element (e.g. a program status badge). */
+  trailing?: React.ReactNode;
 }) {
   const solid = accent === "green" ? "bg-brand-green" : "bg-brand-blue";
 
@@ -49,7 +53,7 @@ function NavItem({
       animate="rest"
       whileHover="hover"
       whileFocus="hover"
-      className={`group relative block overflow-hidden rounded-md px-3 py-1.5 font-bold uppercase tracking-wide ${
+      className={`group relative flex items-center gap-2 overflow-hidden rounded-md px-3 py-1.5 font-bold uppercase tracking-wide ${
         prominent ? "text-sm" : "text-[13px]"
       }`}
     >
@@ -65,12 +69,13 @@ function NavItem({
         />
       )}
       <span
-        className={`relative z-10 transition-colors duration-300 ${
+        className={`relative z-10 min-w-0 flex-1 transition-colors duration-300 ${
           active ? "text-white" : "text-white/85 group-hover:text-white"
         }`}
       >
         {link.label}
       </span>
+      {trailing && <span className="relative z-10 shrink-0">{trailing}</span>}
     </MotionLink>
   );
 }
@@ -99,7 +104,9 @@ function TrainingDropdown({
 }) {
   const pathname = usePathname();
   const hasActive = group.programs.some((p) => isActive(pathname, p.href));
-  const [open, setOpen] = useState(hasActive);
+  // Open by default on the home page (so the program + badge are visible) or
+  // when a program is the active route — the user can still collapse it.
+  const [open, setOpen] = useState(hasActive || pathname === "/");
 
   return (
     <div className="mt-0.5">
@@ -129,6 +136,7 @@ function TrainingDropdown({
                   accent="green"
                   active={isActive(pathname, p.href)}
                   onNavigate={onNavigate}
+                  trailing={<ProgramMiniBadge startAt={p.startAt} endAt={p.endAt} />}
                 />
               </li>
             ))}

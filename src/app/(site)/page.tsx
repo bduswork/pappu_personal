@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/getSettings";
 import { youtubeId } from "@/lib/siteSettings";
+import { getFeaturedProgram } from "@/lib/getPrograms";
 import HeroVideo from "@/components/HeroVideo";
+import BrandName from "@/components/BrandName";
+import ProgramCountdown from "@/components/ProgramCountdown";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const s = await getSettings();
+  const [s, featured] = await Promise.all([getSettings(), getFeaturedProgram()]);
   const h = s.home;
   const vid = h.bannerType === "video" ? youtubeId(h.bannerVideo) : null;
   const hasImage = h.bannerType === "image" && !!h.bannerImage;
@@ -116,6 +119,36 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured program — catches the eye with a live countdown */}
+      {featured && (
+        <section className="relative overflow-hidden border-y border-line bg-gradient-to-br from-brand-blue to-brand-blue-dark">
+          <span aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" />
+          <span aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-white/5" />
+          <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 lg:flex-row lg:items-center lg:justify-between lg:px-12">
+            <div className="max-w-xl">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/70">
+                Programs &amp; Master Classes
+              </p>
+              <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                <BrandName name={featured.name} />
+              </h2>
+              {featured.tagline && (
+                <p className="mt-2 text-lg text-white/85">{featured.tagline}</p>
+              )}
+              <Link
+                href={`/training/${featured.slug}`}
+                className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-blue shadow-sm transition-colors hover:bg-white/90"
+              >
+                {featured.enrollLabel || "View program"}
+              </Link>
+            </div>
+            <div className="shrink-0 rounded-2xl bg-white/10 p-5 backdrop-blur-sm">
+              <ProgramCountdown startAt={featured.startAt} endAt={featured.endAt} />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Pillars */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-12">

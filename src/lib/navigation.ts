@@ -15,6 +15,9 @@
 export type NavLink = {
   label: string;
   href: string;
+  /** Optional program schedule — lets the sidebar show a live status badge. */
+  startAt?: string;
+  endAt?: string;
 };
 
 /** Expandable "Training Entrepreneurs / SME" dropdown, listing active programs. */

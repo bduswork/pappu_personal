@@ -345,3 +345,24 @@ model ContactMessage {
   @@index([createdAt])
   @@map("contact_messages")
 }
+
+enum EnrollmentStatus {
+  NEW
+  CONTACTED
+  ENROLLED
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  name        String
+  email       String
+  whatsapp    String?
+  message     String?
+  programSlug String?
+  programName String?
+  status      EnrollmentStatus @default(NEW)
+  createdAt   DateTime         @default(now())
+
+  @@index([createdAt])
+  @@map("enrollments")
+}
