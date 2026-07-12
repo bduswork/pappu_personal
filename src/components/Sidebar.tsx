@@ -103,10 +103,9 @@ function TrainingDropdown({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const hasActive = group.programs.some((p) => isActive(pathname, p.href));
-  // Open by default on the home page (so the program + badge are visible) or
-  // when a program is the active route — the user can still collapse it.
-  const [open, setOpen] = useState(hasActive || pathname === "/");
+  // Open by default on every page (so the programs + upcoming badge always
+  // catch the eye) — the user can still collapse it.
+  const [open, setOpen] = useState(true);
 
   return (
     <div className="mt-0.5">
@@ -341,7 +340,7 @@ export default function Sidebar({
   return (
     <>
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-white/10 bg-sidebar px-5 py-3 lg:hidden">
+      <div className="sidebar-surface fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-white/10 px-5 py-3 lg:hidden">
         <Link href="/" aria-label="Home">
           <BrandMark signature={signature} className="h-7 w-auto" />
         </Link>
@@ -371,7 +370,7 @@ export default function Sidebar({
 
       {/* Sidebar panel */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[var(--sidebar-width)] max-w-[85vw] transform bg-sidebar transition-transform duration-200 lg:translate-x-0 ${
+        className={`sidebar-surface fixed inset-y-0 left-0 z-50 w-[var(--sidebar-width)] max-w-[85vw] transform transition-transform duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >

@@ -66,7 +66,7 @@ export const DEFAULT_PROGRAMS: Program[] = [
       "<p>The FORCE Progression™ is a Life Operating System — not a motivational session. Over a focused journey it trains entrepreneurs and SME owners to build disciplined, high-output businesses.</p><p>Drawn from ABM Whaiduzzaman's two decades building and scaling technology companies.</p>",
     startAt: "",
     endAt: "",
-    enrollLabel: "Enroll now",
+    enrollLabel: "Enquire Now",
     modules: [
       { id: "m-f", title: "F — Focus", description: "Give all your power to the one thing that truly matters." },
       { id: "m-o", title: "O — Ownership", description: "Take complete ownership of your life, decisions and results." },
@@ -104,7 +104,7 @@ function coerceProgram(v: Partial<Program>, i: number): Program {
     about: str(v.about),
     startAt: str(v.startAt),
     endAt: str(v.endAt),
-    enrollLabel: str(v.enrollLabel) || "Enroll now",
+    enrollLabel: str(v.enrollLabel) || "Enquire Now",
     modules: Array.isArray(v.modules) ? v.modules.map(coerceModule) : [],
     snapshots: Array.isArray(v.snapshots) ? v.snapshots.map(coerceSnapshot) : [],
     published: v.published !== false,

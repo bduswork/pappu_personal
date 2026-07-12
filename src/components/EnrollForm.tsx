@@ -27,7 +27,7 @@ export default function EnrollForm({
   /** wa.me link to hand the enrollee straight into a WhatsApp chat. */
   function enrollWaLink() {
     const lines = [
-      `Hi, I'd like to enroll in ${programName}.`,
+      `Hi, I'd like to enquire about ${programName}.`,
       form.name && `Name: ${form.name}`,
       form.email && `Email: ${form.email}`,
       form.message && `Note: ${form.message}`,
@@ -128,7 +128,7 @@ export default function EnrollForm({
         disabled={state === "sending"}
         className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-brand-green px-7 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-sm transition-colors hover:bg-brand-green-dark disabled:opacity-60"
       >
-        {state === "sending" ? "Sending…" : ctaLabel || "Enroll now"}
+        {state === "sending" ? "Sending…" : ctaLabel || "Enquire Now"}
       </button>
     </form>
   );

@@ -18,8 +18,12 @@
   --color-brand-blue-soft: #e0f2fe;
   --color-brand-blue-tint: #f0f9ff;
 
-  /* Sidebar surface (vivid blue, white text). Adjustable here. */
+  /* Sidebar surface (vivid blue, white text). Adjustable here.
+     `--color-sidebar` is the solid base; the panel uses the .sidebar-surface
+     gradient below. To revert to the old flat look, apply `bg-sidebar` again
+     on the panel + mobile bar and delete .sidebar-surface. */
   --color-sidebar: #0284c7;
+  --color-sidebar-to: #4338ca;
 
   /* Neutrals */
   --color-ink: #0f172a;
@@ -38,6 +42,17 @@ body {
   background: #ffffff;
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Eye-catching sidebar surface: vivid blue sweeping into rich indigo. */
+.sidebar-surface {
+  background-color: var(--color-sidebar);
+  background-image: linear-gradient(
+    170deg,
+    var(--color-sidebar) 0%,
+    var(--color-sidebar) 38%,
+    var(--color-sidebar-to) 100%
+  );
 }
 
 /* Thin, subtle scrollbar for the sidebar */

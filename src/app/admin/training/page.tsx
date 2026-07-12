@@ -64,7 +64,7 @@ export default function ProgramsList() {
       about: "",
       startAt: "",
       endAt: "",
-      enrollLabel: "Enroll now",
+      enrollLabel: "Enquire Now",
       modules: [],
       snapshots: [],
       published: false,
