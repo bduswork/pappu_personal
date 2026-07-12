@@ -2,7 +2,6 @@
 
 import CollectionEditor, {
   type FieldDef,
-  type Item,
 } from "@/components/admin/CollectionEditor";
 
 const FIELDS: FieldDef[] = [
@@ -15,15 +14,10 @@ const FIELDS: FieldDef[] = [
   { key: "published", label: "Published", type: "checkbox" },
 ];
 
-const INITIAL: Item[] = [
-  { id: "pr1", cover: "", title: "ABM Whaiduzzaman on the Future of Bangladeshi SaaS", outlet: "Tech Review", date: "2026-06-01", link: "", excerpt: "", published: true },
-  { id: "pr2", cover: "", title: "Building Nexalinx: A Founder's Playbook", outlet: "Startup Daily", date: "2026-05-04", link: "", excerpt: "", published: true },
-  { id: "pr3", cover: "", title: "Why I Train Entrepreneurs With One-Focus", outlet: "Founder Mag", date: "2026-04-12", link: "", excerpt: "", published: false },
-];
-
 export default function PressCollection() {
   return (
     <CollectionEditor
+      type="press"
       title="Press"
       description="Media features shown on Press Kit and the Home page."
       singular="press item"
@@ -32,7 +26,6 @@ export default function PressCollection() {
         { label: "Home", href: "/admin/pages" },
       ]}
       fields={FIELDS}
-      initial={INITIAL}
       listTitleKey="title"
       listSubtitle={(p) => `${p.outlet || "PRESS"}${p.date ? ` · ${p.date}` : ""}`}
       listImageKey="cover"

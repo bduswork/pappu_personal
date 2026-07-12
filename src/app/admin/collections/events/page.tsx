@@ -2,7 +2,6 @@
 
 import CollectionEditor, {
   type FieldDef,
-  type Item,
 } from "@/components/admin/CollectionEditor";
 
 const FIELDS: FieldDef[] = [
@@ -15,21 +14,15 @@ const FIELDS: FieldDef[] = [
   { key: "published", label: "Published", type: "checkbox" },
 ];
 
-const INITIAL: Item[] = [
-  { id: "e1", name: "SaaS Summit Dhaka", date: "2026-06-08", location: "Dhaka", kind: "Upcoming", link: "", videoUrl: "", published: true },
-  { id: "e2", name: "Founder Bootcamp", date: "2026-09-14", location: "Chittagong", kind: "Upcoming", link: "", videoUrl: "", published: true },
-  { id: "e3", name: "ICT Expo Keynote", date: "2025-11-20", location: "Dhaka", kind: "Past", link: "", videoUrl: "", published: true },
-];
-
 export default function EventsCollection() {
   return (
     <CollectionEditor
+      type="events"
       title="Events"
       description="Speaking engagements (upcoming & past) shown on Speaking & Consulting."
       singular="event"
       appearsOn={[{ label: "Speaking & Consulting", href: "/admin/pages/speaking" }]}
       fields={FIELDS}
-      initial={INITIAL}
       listTitleKey="name"
       listSubtitle={(e) => `${e.kind || ""}${e.location ? ` · ${e.location}` : ""}${e.date ? ` · ${e.date}` : ""}`}
       listIcon="events"

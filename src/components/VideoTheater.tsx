@@ -19,7 +19,13 @@ type VTPlayer = {
 };
 
 /** YouTube-style player: a main video (tap to play/pause) + a clickable list. */
-export default function VideoTheater({ videos }: { videos: TheaterVideo[] }) {
+export default function VideoTheater({
+  videos,
+  listLabel = "More talks",
+}: {
+  videos: TheaterVideo[];
+  listLabel?: string;
+}) {
   const list = videos.filter((v) => youtubeId(v.video));
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -143,7 +149,7 @@ export default function VideoTheater({ videos }: { videos: TheaterVideo[] }) {
       {list.length > 1 && (
         <div className="scroll-slim lg:max-h-[420px] lg:overflow-y-auto lg:pr-1">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-ink-faint">
-            More talks
+            {listLabel}
           </p>
           <div className="space-y-2">
             {list.map((v, i) => {

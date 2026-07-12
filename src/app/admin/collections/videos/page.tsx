@@ -2,8 +2,8 @@
 
 import CollectionEditor, {
   type FieldDef,
-  type Item,
 } from "@/components/admin/CollectionEditor";
+import { youtubeId } from "@/lib/siteSettings";
 
 const FIELDS: FieldDef[] = [
   { key: "youtubeUrl", label: "YouTube URL", type: "url", full: true, placeholder: "https://youtube.com/watch?v=…" },
@@ -15,14 +15,10 @@ const FIELDS: FieldDef[] = [
   { key: "published", label: "Published", type: "checkbox" },
 ];
 
-const INITIAL: Item[] = [
-  { id: "v1", youtubeUrl: "", title: "How I Build Software Products", category: "Talk", date: "2026-04-10", thumbnail: "", description: "", published: true },
-  { id: "v2", youtubeUrl: "", title: "One-Focus Masterclass — Episode 1", category: "Training", date: "2026-03-02", thumbnail: "", description: "", published: true },
-];
-
 export default function VideosCollection() {
   return (
     <CollectionEditor
+      type="videos"
       title="Videos"
       description="YouTube videos shown on Podcast & Videos and Speaking (past talks)."
       singular="video"
@@ -31,10 +27,13 @@ export default function VideosCollection() {
         { label: "Speaking", href: "/admin/pages/speaking" },
       ]}
       fields={FIELDS}
-      initial={INITIAL}
       listTitleKey="title"
       listSubtitle={(v) => `${v.category || "YouTube"}${v.date ? ` · ${v.date}` : ""}`}
       listImageKey="thumbnail"
+      listImageFallback={(v) => {
+        const id = youtubeId(String(v.youtubeUrl || ""));
+        return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : "";
+      }}
       listIcon="videos"
     />
   );
