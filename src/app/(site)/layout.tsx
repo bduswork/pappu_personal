@@ -1,6 +1,7 @@
 import Sidebar from "@/components/Sidebar";
 import { getSettings } from "@/lib/getSettings";
 import { getSidebarSections } from "@/lib/getNav";
+import { resolveSocialLinks } from "@/lib/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,11 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [{ topBanner, brand }, sections] = await Promise.all([
+  const [{ topBanner, brand, social }, sections] = await Promise.all([
     getSettings(),
     getSidebarSections(),
   ]);
+  const socialLinks = resolveSocialLinks(social);
   const text = topBanner.text.trim();
   const show = topBanner.enabled && !!text;
 
@@ -27,7 +29,7 @@ export default async function SiteLayout({
 
   return (
     <>
-      <Sidebar sections={sections} signature={brand.signature} />
+      <Sidebar sections={sections} signature={brand.signature} social={socialLinks} />
       <main className="lg:pl-[var(--sidebar-width)]">
         <div className="pt-16 lg:pt-0">
           {show &&

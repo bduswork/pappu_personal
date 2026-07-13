@@ -17,7 +17,7 @@ export type Pillar = {
 };
 
 export type SiteSettings = {
-  brand: { signature: string };
+  brand: { signature: string; favicon: string };
   home: {
     bannerType: BannerType;
     bannerImage: string;
@@ -50,7 +50,7 @@ export const SOCIAL_PLATFORMS = [
 ] as const;
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  brand: { signature: "" },
+  brand: { signature: "", favicon: "" },
   home: {
     bannerType: "image",
     bannerImage: "",

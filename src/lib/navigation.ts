@@ -160,13 +160,37 @@ export function resolveNavSections(meta: NavSectionMeta[]): NavSection[] {
 export type SocialLink = {
   label: string;
   href: string;
-  icon: "x" | "facebook" | "linkedin" | "youtube" | "instagram";
+  icon: "x" | "facebook" | "linkedin" | "youtube" | "instagram" | "tiktok" | "threads";
 };
 
-export const SOCIAL_LINKS: SocialLink[] = [
-  { label: "X", href: "#", icon: "x" },
-  { label: "Facebook", href: "#", icon: "facebook" },
-  { label: "LinkedIn", href: "#", icon: "linkedin" },
-  { label: "YouTube", href: "#", icon: "youtube" },
-  { label: "Instagram", href: "#", icon: "instagram" },
-];
+/** Platform name (as stored in Site settings) → icon glyph. Order = display order. */
+const PLATFORM_ICON: Record<string, SocialLink["icon"]> = {
+  X: "x",
+  Facebook: "facebook",
+  LinkedIn: "linkedin",
+  YouTube: "youtube",
+  Instagram: "instagram",
+  TikTok: "tiktok",
+  Threads: "threads",
+};
+
+/** Add https:// to a bare URL the admin may have typed without a scheme. */
+function normalizeSocialUrl(raw: string): string {
+  const v = (raw ?? "").trim();
+  if (!v) return "";
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://${v.replace(/^\/+/, "")}`;
+}
+
+/**
+ * Build the sidebar's social links from saved Site settings — only platforms
+ * with a URL are shown (blank ones are hidden, so no dead "#" links).
+ */
+export function resolveSocialLinks(social: Record<string, string>): SocialLink[] {
+  return Object.entries(PLATFORM_ICON)
+    .map(([name, icon]) => {
+      const href = normalizeSocialUrl(social?.[name] ?? "");
+      return href ? { label: name, href, icon } : null;
+    })
+    .filter((s): s is SocialLink => s !== null);
+}

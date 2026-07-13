@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CONTACT_LINK,
-  SOCIAL_LINKS,
   type NavLink as NavLinkType,
   type NavSection,
+  type SocialLink,
   type TrainingGroup,
 } from "@/lib/navigation";
 import SocialIcon from "./SocialIcon";
@@ -249,10 +249,12 @@ function BrandMark({ signature, className }: { signature?: string; className: st
 function SidebarBody({
   sections,
   signature,
+  social,
   onNavigate,
 }: {
   sections: NavSection[];
   signature?: string;
+  social: SocialLink[];
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
@@ -309,21 +311,23 @@ function SidebarBody({
         />
       </form>
 
-      {/* Social */}
-      <div className="mt-auto flex items-center gap-4 border-t border-white/10 pt-5 text-white/80">
-        {SOCIAL_LINKS.map((s) => (
-          <a
-            key={s.label}
-            href={s.href}
-            aria-label={s.label}
-            className="transition-colors hover:text-brand-green"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <SocialIcon icon={s.icon} className="h-4 w-4" />
-          </a>
-        ))}
-      </div>
+      {/* Social — only platforms with a URL set in Settings */}
+      {social.length > 0 && (
+        <div className="mt-auto flex items-center gap-4 border-t border-white/10 pt-5 text-white/80">
+          {social.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              aria-label={s.label}
+              className="transition-colors hover:text-brand-green"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <SocialIcon icon={s.icon} className="h-4 w-4" />
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -331,9 +335,11 @@ function SidebarBody({
 export default function Sidebar({
   sections,
   signature,
+  social,
 }: {
   sections: NavSection[];
   signature?: string;
+  social: SocialLink[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -377,6 +383,7 @@ export default function Sidebar({
         <SidebarBody
           sections={sections}
           signature={signature}
+          social={social}
           onNavigate={() => setOpen(false)}
         />
       </aside>

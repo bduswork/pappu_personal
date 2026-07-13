@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { getSettings } from "@/lib/getSettings";
 
-/** Metadata is dynamic so the favicon follows the uploaded brand signature. */
+/** Metadata is dynamic so the favicon follows the uploaded brand mark. Prefer
+ *  the square favicon tile (legible on light tabs); fall back to the signature. */
 export async function generateMetadata(): Promise<Metadata> {
   const { brand } = await getSettings();
+  const icon = brand.favicon || brand.signature;
   return {
     title:
       "ABM Whaiduzzaman — builds technology · trains entrepreneurs · creates brands",
     description:
       "The official site of ABM Whaiduzzaman: technologist, entrepreneur educator (One-Focus), and brand builder.",
-    icons: brand.signature ? { icon: brand.signature } : undefined,
+    icons: icon ? { icon } : undefined,
   };
 }
 

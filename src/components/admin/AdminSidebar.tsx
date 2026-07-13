@@ -10,13 +10,13 @@ export default function AdminSidebar() {
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-white lg:flex">
-      {/* Brand */}
+      {/* Brand — generic panel identity (used by multiple managers) */}
       <div className="flex items-center gap-2.5 px-6 py-5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-green text-sm font-extrabold text-white">
-          A
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-green text-white">
+          <AdminIcon name="settings" className="h-[18px] w-[18px]" />
         </span>
         <div className="leading-tight">
-          <p className="text-sm font-bold tracking-tight text-ink">ABM Admin</p>
+          <p className="text-sm font-bold tracking-tight text-ink">Admin Panel</p>
           <p className="text-[11px] text-ink-faint">Content manager</p>
         </div>
       </div>

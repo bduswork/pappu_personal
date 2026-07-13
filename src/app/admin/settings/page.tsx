@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminIcon from "@/components/admin/AdminIcon";
 import Field from "@/components/admin/Field";
 import ImageField from "@/components/admin/ImageField";
+import SignatureField from "@/components/admin/SignatureField";
 import { SortableList, SortableItem } from "@/components/admin/Sortable";
 import { Card, PageHeader, Toggle, btnPrimary } from "@/components/admin/ui";
 import {
@@ -126,19 +127,18 @@ export default function SettingsPage() {
           {/* ── Brand / signature ── */}
           <SectionCard
             title="Brand signature"
-            hint="Your signature / logo — shown at the top of the sidebar and used as the site favicon. Leave empty to keep the built-in signature."
+            hint="Shown at the top of the sidebar and used as the site favicon. Leave empty to keep the built-in signature."
           >
-            <div className="max-w-md">
-              <ImageField
-                value={s.brand.signature}
-                onChange={(v) => update("brand", { signature: v })}
-                label="Signature / logo"
-                boxClass="aspect-[3/1] w-full bg-sidebar"
-              />
-            </div>
+            <SignatureField
+              signature={s.brand.signature}
+              onResult={({ signature, favicon }) =>
+                update("brand", { signature, favicon })
+              }
+            />
             <p className="mt-2 text-xs text-ink-faint">
-              Tip: upload a version that reads well on the blue sidebar (white or
-              light artwork on a transparent background).
+              Just upload a photo of your signature — even on lined paper. The
+              background is removed automatically, and a matching favicon is
+              generated for the browser tab. Remember to Save.
             </p>
           </SectionCard>
 

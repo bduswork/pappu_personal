@@ -17,7 +17,7 @@ export default function AdminLayout({
 
       {/* Mobile top bar (full sidebar is desktop-only for now) */}
       <div className="flex items-center justify-between border-b border-line bg-white px-5 py-3 lg:hidden">
-        <span className="text-sm font-bold tracking-tight text-ink">ABM Admin</span>
+        <span className="text-sm font-bold tracking-tight text-ink">Admin Panel</span>
         <Link href="/" className="text-xs font-medium text-brand-green">
           View site
         </Link>
