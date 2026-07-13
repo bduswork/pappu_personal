@@ -282,7 +282,7 @@ export default function SettingsPage() {
           </SectionCard>
 
           {/* ── Social ── */}
-          <SectionCard title="Social links" hint="Icons in the sidebar and footer link to these.">
+          <SectionCard title="Social links" hint="Icons at the bottom of the sidebar and on the Contact page. Blank ones are hidden.">
             <div className="grid gap-3 sm:grid-cols-2">
               {SOCIAL_PLATFORMS.map((p) => (
                 <Field
