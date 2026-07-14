@@ -3,9 +3,10 @@
 #   docker compose up --build      # build + run
 #   open http://localhost:8011
 #
-# The bundled DB uses the local dev credentials below (change them before any
-# real exposure). To use an EXTERNAL / managed Postgres instead, see DOCKER.md
-# — point the app's DB_* (or DATABASE_URL) at it and drop the `db` service.
+# Secrets (DB_PASSWORD, ADMIN_PASSWORD, AUTH_SECRET) are read from .env (git-
+# ignored) via ${VAR:-fallback}; the fallbacks here are safe, non-secret defaults
+# so nothing real is committed. To use an EXTERNAL / managed Postgres instead,
+# see DOCKER.md — point the app's DB_* (or DATABASE_URL) at it and drop `db`.
 
 services:
   db:
@@ -13,7 +14,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ceo
-      POSTGRES_PASSWORD: ceo_local_password
+      # Secret sourced from .env (git-ignored); non-secret fallback for first run.
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ceo_local_password}
       POSTGRES_DB: ceo
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -32,18 +34,20 @@ services:
     environment:
       NODE_ENV: production
       PORT: "8011"
-      # App → bundled Postgres (see src/lib/prisma.ts / prisma.config.ts).
+      # App → bundled Postgres (host pinned to the `db` service so it never
+      # accidentally targets a real database). Secrets come from .env below.
       DB_HOST: db
       DB_PORT: "5432"
       DB_NAME: ceo
       DB_USER: ceo
-      DB_PASSWORD: ceo_local_password
+      DB_PASSWORD: ${DB_PASSWORD:-ceo_local_password}
       DB_SCHEMA: ceo
       # Admin login — change per deployment/client (this is how the product is
-      # reused). AUTH_SECRET signs the session cookie; set a long random value.
-      ADMIN_EMAIL: ceo@gmail.com
-      ADMIN_PASSWORD: amiceo1
-      AUTH_SECRET: change_me_to_a_long_random_secret
+      # reused). Secrets (password, signing secret) are read from .env; the
+      # values here are safe, non-secret fallbacks for a first run.
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-ceo@gmail.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-amiceo1}
+      AUTH_SECRET: ${AUTH_SECRET:-change_me_to_a_long_random_secret}
     ports:
       - "8011:8011"
     healthcheck:
