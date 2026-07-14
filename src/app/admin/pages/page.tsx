@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { NAV_SECTIONS, CONTACT_LINK } from "@/lib/navigation";
+import {
+  withCustomPagesDefaults,
+  uniqueSlug,
+  type CustomPage,
+  type CustomPageSection,
+} from "@/lib/customPages";
 import AdminIcon from "@/components/admin/AdminIcon";
 import { SortableList, SortableItem } from "@/components/admin/Sortable";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -21,11 +27,15 @@ type Entry =
       id: string;
       label: string;
       href: string;
+      /** Admin-created page (deletable, edited via the custom editor). */
+      custom?: boolean;
+      slug?: string;
     }
   | { kind: "programs"; id: string; label: string; count: number };
 
 type Section = {
   id: string;
+  key: string;
   title: string;
   tagline: string;
   accent: "green" | "blue";
@@ -63,6 +73,7 @@ const PULLS: Record<string, string> = {
 // always match: section links → programs dropdown → links after.
 const INITIAL: Section[] = NAV_SECTIONS.map((s, si) => ({
   id: `s${si}`,
+  key: s.key,
   title: s.title,
   tagline: s.tagline,
   accent: s.accent,
@@ -94,6 +105,35 @@ const INITIAL: Section[] = NAV_SECTIONS.map((s, si) => ({
 
 let nid = 100;
 
+/** Rebuild the section list from the code sections + admin-created pages
+ *  (appended to their assigned section). Idempotent — safe to re-run. */
+function mergeCustom(pages: CustomPage[]): Section[] {
+  return INITIAL.map((s) => ({
+    ...s,
+    entries: [
+      ...s.entries,
+      ...pages
+        .filter((p) => p.section === s.key)
+        .map(
+          (p): Entry => ({
+            kind: "page",
+            id: `cp-${p.id}`,
+            label: p.label,
+            href: `/${p.slug}`,
+            custom: true,
+            slug: p.slug,
+          })
+        ),
+    ],
+  }));
+}
+
+async function fetchCustomPages(): Promise<CustomPage[]> {
+  return withCustomPagesDefaults(
+    await fetch("/api/custom-pages").then((r) => r.json())
+  ).pages;
+}
+
 export default function PagesList() {
   const [sections, setSections] = useState<Section[]>(INITIAL);
   const [statusMap, setStatusMap] = useState<PageStatusMap>({});
@@ -104,12 +144,18 @@ export default function PagesList() {
     sid: string;
     id: string;
     label: string;
+    custom?: boolean;
+    slug?: string;
   } | null>(null);
 
   useEffect(() => {
     fetch("/api/page-status")
       .then((r) => r.json())
       .then((d) => setStatusMap(withStatusDefaults(d)))
+      .catch(() => {});
+    // Merge admin-created pages into the list.
+    fetchCustomPages()
+      .then((pages) => setSections(mergeCustom(pages)))
       .catch(() => {});
   }, []);
 
@@ -150,20 +196,42 @@ export default function PagesList() {
       };
     });
 
-  const addPage = (sid: string) =>
-    updateSection(sid, (s) => ({
+  // Create a real, persisted custom page in the given section, then show it.
+  async function addPage(section: Section) {
+    const label = "New Page";
+    const latest = await fetchCustomPages();
+    const slug = uniqueSlug(label, new Set(latest.map((p) => p.slug)));
+    const page: CustomPage = {
+      id: `cp-${nid++}-${Date.now().toString(36)}`,
+      slug,
+      label,
+      section: section.key as CustomPageSection,
+      banner: { image: "", headline: "" },
+      body: "",
+    };
+    await fetch("/api/custom-pages", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pages: [...latest, page] }),
+    });
+    updateSection(section.id, (s) => ({
       ...s,
       entries: [
         ...s.entries,
-        {
-          kind: "page",
-          id: `n${nid++}`,
-          label: "New Page",
-          href: "/new-page",
-          status: "DRAFT",
-        },
+        { kind: "page", id: `cp-${page.id}`, label, href: `/${slug}`, custom: true, slug },
       ],
     }));
+  }
+
+  // Remove a persisted custom page by slug (read-modify-write).
+  async function deleteCustom(slug: string) {
+    const latest = await fetchCustomPages();
+    await fetch("/api/custom-pages", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pages: latest.filter((p) => p.slug !== slug) }),
+    });
+  }
 
   const removeEntry = (sid: string, id: string) =>
     updateSection(sid, (s) => ({
@@ -297,8 +365,13 @@ export default function PagesList() {
                           ) : (
                             <>
                               <div className="min-w-0 flex-1">
-                                <p className="font-semibold text-ink">
+                                <p className="flex items-center gap-2 font-semibold text-ink">
                                   {entry.label}
+                                  {entry.custom && (
+                                    <span className="rounded-full bg-brand-green-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-green-dark">
+                                      Custom
+                                    </span>
+                                  )}
                                 </p>
                                 <p className="text-xs text-ink-faint">
                                   {entry.href}
@@ -313,7 +386,14 @@ export default function PagesList() {
                                 value={statusOf(statusMap, entry.href)}
                                 onChange={(v) => setStatus(entry.href, v)}
                               />
-                              {EDITORS[entry.href] ? (
+                              {entry.custom ? (
+                                <Link
+                                  href={`/admin/pages/custom/${entry.slug}`}
+                                  className="rounded-md px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-brand-blue-tint"
+                                >
+                                  Edit
+                                </Link>
+                              ) : EDITORS[entry.href] ? (
                                 <Link
                                   href={EDITORS[entry.href]}
                                   className="rounded-md px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-brand-blue-tint"
@@ -328,23 +408,27 @@ export default function PagesList() {
                                   Edit blocks
                                 </span>
                               )}
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPendingDelete({
-                                    sid: section.id,
-                                    id: entry.id,
-                                    label: entry.label,
-                                  })
-                                }
-                                className="rounded-md p-1.5 text-ink-faint hover:bg-red-50 hover:text-red-500"
-                                aria-label="Delete page"
-                              >
-                                <AdminIcon
-                                  name="trash"
-                                  className="h-[18px] w-[18px]"
-                                />
-                              </button>
+                              {entry.custom ? (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setPendingDelete({
+                                      sid: section.id,
+                                      id: entry.id,
+                                      label: entry.label,
+                                      custom: true,
+                                      slug: entry.slug,
+                                    })
+                                  }
+                                  className="rounded-md p-1.5 text-ink-faint hover:bg-red-50 hover:text-red-500"
+                                  aria-label="Delete page"
+                                >
+                                  <AdminIcon name="trash" className="h-[18px] w-[18px]" />
+                                </button>
+                              ) : (
+                                // Built-in pages can't be deleted — keep spacing aligned.
+                                <span className="w-[30px]" aria-hidden />
+                              )}
                             </>
                           )}
                         </li>
@@ -357,7 +441,7 @@ export default function PagesList() {
               {/* Add page to this section */}
               <button
                 type="button"
-                onClick={() => addPage(section.id)}
+                onClick={() => addPage(section)}
                 className="flex w-full items-center gap-2 border-t border-line px-4 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-slate-50 hover:text-brand-green"
               >
                 <AdminIcon name="plus" className="h-4 w-4" />
@@ -421,8 +505,13 @@ export default function PagesList() {
         }
         confirmLabel="Delete"
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
-          if (pendingDelete) removeEntry(pendingDelete.sid, pendingDelete.id);
+        onConfirm={async () => {
+          if (pendingDelete) {
+            if (pendingDelete.custom && pendingDelete.slug) {
+              await deleteCustom(pendingDelete.slug);
+            }
+            removeEntry(pendingDelete.sid, pendingDelete.id);
+          }
           setPendingDelete(null);
         }}
       />

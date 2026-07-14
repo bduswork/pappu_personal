@@ -15,6 +15,7 @@ const PUBLIC_API = [
   /^\/api\/health(\/|$)/,
   /^\/api\/contact(\/|$)/,
   /^\/api\/enroll(\/|$)/,
+  /^\/api\/subscribe(\/|$)/,
 ];
 
 export async function proxy(req: NextRequest) {

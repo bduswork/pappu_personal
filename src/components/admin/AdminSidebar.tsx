@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_NAV } from "@/lib/adminNav";
@@ -7,6 +8,30 @@ import AdminIcon from "./AdminIcon";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  // Poll unread/new counts for the notification badges; also refresh on
+  // navigation (so marking items read updates the badge promptly).
+  useEffect(() => {
+    let active = true;
+    const load = () =>
+      fetch("/api/admin/counts")
+        .then((r) => r.json())
+        .then((d) => {
+          if (active)
+            setCounts({
+              "/admin/enrollments": d.enrollments || 0,
+              "/admin/messages": d.messages || 0,
+            });
+        })
+        .catch(() => {});
+    load();
+    const t = setInterval(load, 30000);
+    return () => {
+      active = false;
+      clearInterval(t);
+    };
+  }, [pathname]);
 
   async function signOut() {
     try {
@@ -60,7 +85,12 @@ export default function AdminSidebar() {
                           active ? "text-brand-green" : "text-ink-faint"
                         }`}
                       />
-                      {item.label}
+                      <span className="flex-1">{item.label}</span>
+                      {counts[item.href] > 0 && (
+                        <span className="ml-auto inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand-green px-1.5 text-[11px] font-bold text-white">
+                          {counts[item.href]}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );

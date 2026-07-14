@@ -86,11 +86,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     },
     {
       id: "p2",
-      brand: "One-Focus",
+      brand: "FORCE Progression™",
       title: "Trains Entrepreneurs",
       body: "Programs, masterclasses, the book, podcast, and resources that sharpen founders to a single focus.",
-      link: "/training/one-focus",
-      cta: "Enter One-Focus",
+      link: "/training/force-progression",
+      cta: "Enter FORCE Progression™",
       accent: "green",
     },
     {

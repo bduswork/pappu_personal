@@ -3,6 +3,7 @@ import { getSettings } from "@/lib/getSettings";
 import { youtubeId } from "@/lib/siteSettings";
 import { getFeaturedProgram } from "@/lib/getPrograms";
 import HeroVideo from "@/components/HeroVideo";
+import NewsletterForm from "@/components/NewsletterForm";
 import BrandName from "@/components/BrandName";
 import ProgramCountdown from "@/components/ProgramCountdown";
 
@@ -171,7 +172,7 @@ export default async function Home() {
                   p.accent === "green" ? "text-brand-green" : "text-brand-blue"
                 }`}
               >
-                {p.brand}
+                <BrandName name={p.brand} />
               </span>
               <h3 className="mt-2 text-2xl font-extrabold tracking-tight text-ink">
                 {p.title}
@@ -198,23 +199,7 @@ export default async function Home() {
           <h2 className="text-2xl font-extrabold tracking-tight text-ink">
             {s.newsletter.heading}
           </h2>
-          <form
-            action={s.newsletter.provider || "#"}
-            className="mx-auto mt-6 flex max-w-md gap-2"
-          >
-            <input
-              type="email"
-              name="email"
-              placeholder="Your email"
-              className="w-full rounded-full border border-line bg-white px-4 py-3 text-sm text-ink outline-none focus:border-brand-green"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-green-dark"
-            >
-              Sign up
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </section>
 
