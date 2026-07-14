@@ -34,7 +34,7 @@ export default async function VenturePage({
       {/* ── Hero ───────────────────────────────────── */}
       <section
         className={`relative flex flex-col overflow-hidden ${
-          hasHero ? "min-h-[420px] justify-end lg:min-h-[56vh]" : ""
+          hasHero ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""
         }`}
       >
         {hasHero ? (

@@ -30,7 +30,7 @@ export default async function PodcastPage() {
   return (
     <div>
       {/* ── Hero ───────────────────────────────────── */}
-      <section className={`relative flex flex-col overflow-hidden ${hasImage ? "min-h-[340px] justify-end lg:min-h-[44vh]" : ""}`}>
+      <section className={`relative flex flex-col overflow-hidden ${hasImage ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""}`}>
         {hasImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={banner.image} alt="" className="absolute inset-0 h-full w-full object-cover" />

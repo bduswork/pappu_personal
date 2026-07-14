@@ -22,7 +22,7 @@ export default async function BuildsSoftwarePage() {
       {/* ── Banner ─────────────────────────────────── */}
       <section
         className={`relative flex flex-col overflow-hidden ${
-          hasImage ? "min-h-[420px] justify-end lg:min-h-[60vh]" : ""
+          hasImage ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""
         }`}
       >
         {hasImage ? (

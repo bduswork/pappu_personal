@@ -21,7 +21,7 @@ export default async function TheBookPage() {
     <div>
       {/* ── Optional banner ────────────────────────── */}
       {banner.image && (
-        <section className="relative flex min-h-[380px] flex-col justify-end overflow-hidden">
+        <section className="relative flex min-h-[380px] flex-col justify-end overflow-hidden lg:min-h-[52vh]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={banner.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/40 to-ink/5" />

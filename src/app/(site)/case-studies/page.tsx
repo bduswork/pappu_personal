@@ -22,7 +22,7 @@ export default async function CaseStudiesPage() {
       {/* ── Banner ─────────────────────────────────── */}
       <section
         className={`relative flex flex-col overflow-hidden ${
-          hasImage ? "min-h-[360px] justify-end lg:min-h-[48vh]" : ""
+          hasImage ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""
         }`}
       >
         {hasImage ? (

@@ -33,7 +33,7 @@ export default async function SpeakingPage() {
       {/* ── Hero (text) ────────────────────────────── */}
       <section
         className={`relative flex flex-col overflow-hidden ${
-          hasImage ? "min-h-[360px] justify-end lg:min-h-[46vh]" : ""
+          hasImage ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""
         }`}
       >
         {hasImage ? (

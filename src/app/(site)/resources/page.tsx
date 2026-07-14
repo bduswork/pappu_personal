@@ -26,7 +26,7 @@ export default async function ResourcesPage() {
   return (
     <div>
       {/* ── Banner ─────────────────────────────────── */}
-      <section className={`relative flex flex-col overflow-hidden ${hasImage ? "min-h-[320px] justify-end lg:min-h-[42vh]" : ""}`}>
+      <section className={`relative flex flex-col overflow-hidden ${hasImage ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""}`}>
         {hasImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={banner.image} alt="" className="absolute inset-0 h-full w-full object-cover" />

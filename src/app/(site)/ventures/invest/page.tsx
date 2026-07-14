@@ -22,7 +22,7 @@ export default async function InvestPartnerPage() {
   return (
     <div>
       {/* ── Banner ─────────────────────────────────── */}
-      <section className={`relative flex flex-col overflow-hidden ${hasImage ? "min-h-[360px] justify-end lg:min-h-[48vh]" : ""}`}>
+      <section className={`relative flex flex-col overflow-hidden ${hasImage ? "min-h-[380px] justify-end lg:min-h-[52vh]" : ""}`}>
         {hasImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={banner.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
