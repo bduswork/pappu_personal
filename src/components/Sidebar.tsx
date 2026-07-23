@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CONTACT_LINK,
+  HOME_LINK,
   type NavLink as NavLinkType,
   type NavSection,
   type SocialLink,
@@ -250,11 +250,13 @@ function SidebarBody({
   sections,
   signature,
   social,
+  globalLinks,
   onNavigate,
 }: {
   sections: NavSection[];
   signature?: string;
   social: SocialLink[];
+  globalLinks: NavLinkType[];
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
@@ -266,8 +268,19 @@ function SidebarBody({
         <BrandMark signature={signature} className="h-12 w-auto" />
       </Link>
 
+      {/* Home — explicit link so the logo isn't the only way back */}
+      <div className="mt-6">
+        <NavItem
+          link={HOME_LINK}
+          accent="green"
+          active={pathname === HOME_LINK.href}
+          onNavigate={onNavigate}
+          prominent
+        />
+      </div>
+
       {/* Pillars (accordion) */}
-      <nav className="mt-8 flex flex-col gap-2">
+      <nav className="mt-3 flex flex-col gap-2">
         {sections.map((section) => (
           <PillarAccordion
             key={section.key}
@@ -277,16 +290,21 @@ function SidebarBody({
         ))}
       </nav>
 
-      {/* Standalone Contact (global, like garyvaynerchuk.com) */}
-      <div className="mt-4">
-        <NavItem
-          link={CONTACT_LINK}
-          accent="green"
-          active={pathname === CONTACT_LINK.href}
-          onNavigate={onNavigate}
-          prominent
-        />
-      </div>
+      {/* Standalone global links (Research, Global Experience, Contact) */}
+      {globalLinks.length > 0 && (
+        <div className="mt-4 flex flex-col gap-0.5">
+          {globalLinks.map((link) => (
+            <NavItem
+              key={link.href}
+              link={link}
+              accent="green"
+              active={pathname === link.href}
+              onNavigate={onNavigate}
+              prominent
+            />
+          ))}
+        </div>
+      )}
 
       {/* Search */}
       <form
@@ -336,10 +354,12 @@ export default function Sidebar({
   sections,
   signature,
   social,
+  globalLinks,
 }: {
   sections: NavSection[];
   signature?: string;
   social: SocialLink[];
+  globalLinks: NavLinkType[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -384,6 +404,7 @@ export default function Sidebar({
           sections={sections}
           signature={signature}
           social={social}
+          globalLinks={globalLinks}
           onNavigate={() => setOpen(false)}
         />
       </aside>

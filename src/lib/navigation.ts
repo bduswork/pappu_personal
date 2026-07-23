@@ -57,8 +57,15 @@ export const BRAND = {
   tagline: "builds technology",
 };
 
-/** Standalone global link shown at the bottom of the sidebar (above social). */
-export const CONTACT_LINK: NavLink = { label: "Contact", href: "/contact" };
+/** Home link shown at the very top of the sidebar (above the pillars). */
+export const HOME_LINK: NavLink = { label: "Home", href: "/" };
+
+/** Standalone global links shown at the bottom of the sidebar (above social). */
+export const GLOBAL_LINKS: NavLink[] = [
+  { label: "Research Paper", href: "/research" },
+  { label: "Global Experience", href: "/global-experience" },
+  { label: "Contact", href: "/contact" },
+];
 
 export const NAV_SECTIONS: NavSection[] = [
   {

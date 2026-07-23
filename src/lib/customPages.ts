@@ -36,6 +36,8 @@ export const RESERVED_SLUGS = new Set<string>([
   "the-book",
   "training",
   "ventures",
+  "research",
+  "global-experience",
   // System routes
   "admin",
   "api",

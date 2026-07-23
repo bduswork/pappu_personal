@@ -18,6 +18,8 @@ import {
   withResourcesPageDefaults,
 } from "./pages/collectionPages";
 import { withInvestDefaults } from "./pages/investPartner";
+import { withResearchDefaults } from "./pages/research";
+import { withGlobalExperienceDefaults } from "./pages/globalExperience";
 
 export const PAGE_REGISTRY: Record<string, (v: unknown) => unknown> = {
   "builds-software": withBuildsDefaults,
@@ -33,6 +35,8 @@ export const PAGE_REGISTRY: Record<string, (v: unknown) => unknown> = {
   podcast: withPodcastDefaults,
   resources: withResourcesPageDefaults,
   "ventures-invest": withInvestDefaults,
+  research: withResearchDefaults,
+  "global-experience": withGlobalExperienceDefaults,
 };
 
 /** Settings-table key for a page's stored content. */

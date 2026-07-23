@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { NAV_SECTIONS, CONTACT_LINK } from "@/lib/navigation";
+import { NAV_SECTIONS, GLOBAL_LINKS } from "@/lib/navigation";
 import {
   withCustomPagesDefaults,
   uniqueSlug,
@@ -58,6 +58,10 @@ const EDITORS: Record<string, string> = {
   // Brand ventures are managed at /admin/ventures (dynamic list); only the
   // fixed Invest & Partner page is edited from the Pages list.
   "/ventures/invest": "/admin/pages/ventures/invest",
+  // Global standalone pages
+  "/contact": "/admin/pages/contact",
+  "/research": "/admin/pages/research",
+  "/global-experience": "/admin/pages/global-experience",
 };
 
 // Which collection a page pulls from (label only).
@@ -465,23 +469,31 @@ export default function PagesList() {
             </div>
           </div>
           <ul className="divide-y divide-line">
-            <li className="flex items-center gap-3 px-4 py-2.5">
-              <span className="w-[26px]" />
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-ink">{CONTACT_LINK.label}</p>
-                <p className="text-xs text-ink-faint">{CONTACT_LINK.href}</p>
-              </div>
-              <StatusToggle
-                value={statusOf(statusMap, CONTACT_LINK.href)}
-                onChange={(v) => setStatus(CONTACT_LINK.href, v)}
-              />
-              <Link
-                href="/admin/pages/contact"
-                className="rounded-md px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-brand-blue-tint"
-              >
-                Edit blocks
-              </Link>
-            </li>
+            {GLOBAL_LINKS.map((link) => (
+              <li key={link.href} className="flex items-center gap-3 px-4 py-2.5">
+                <span className="w-[26px]" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-ink">{link.label}</p>
+                  <p className="text-xs text-ink-faint">{link.href}</p>
+                </div>
+                <StatusToggle
+                  value={statusOf(statusMap, link.href)}
+                  onChange={(v) => setStatus(link.href, v)}
+                />
+                {EDITORS[link.href] ? (
+                  <Link
+                    href={EDITORS[link.href]}
+                    className="rounded-md px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-brand-blue-tint"
+                  >
+                    Edit blocks
+                  </Link>
+                ) : (
+                  <span className="cursor-default rounded-md px-2.5 py-1 text-xs font-semibold text-ink-faint">
+                    Edit blocks
+                  </span>
+                )}
+              </li>
+            ))}
           </ul>
         </Card>
 

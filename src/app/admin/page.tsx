@@ -2,14 +2,14 @@ import Link from "next/link";
 import AdminIcon from "@/components/admin/AdminIcon";
 import { Card, PageHeader } from "@/components/admin/ui";
 import type { IconName } from "@/components/admin/AdminIcon";
+import { prisma } from "@/lib/prisma";
+import { getPrograms } from "@/lib/getPrograms";
+import { getVentures } from "@/lib/getVentures";
+import { getCustomPages } from "@/lib/getCustomPages";
+import { getSubscribers } from "@/lib/getSubscribers";
+import { NAV_SECTIONS, GLOBAL_LINKS, pagesInSection } from "@/lib/navigation";
 
-// Mock numbers for the design pass — wired to the DB in a later step.
-const STATS: { label: string; value: number; href: string; icon: IconName }[] = [
-  { label: "Sections", value: 2, href: "/admin/sections", icon: "sections" },
-  { label: "Pages", value: 16, href: "/admin/pages", icon: "pages" },
-  { label: "Programs", value: 1, href: "/admin/training", icon: "training" },
-  { label: "Enrollments", value: 3, href: "/admin/enrollments", icon: "enrollments" },
-];
+export const dynamic = "force-dynamic";
 
 const QUICK: { label: string; href: string; icon: IconName }[] = [
   { label: "Manage sections", href: "/admin/sections", icon: "sections" },
@@ -18,7 +18,68 @@ const QUICK: { label: string; href: string; icon: IconName }[] = [
   { label: "Upload media", href: "/admin/media", icon: "media" },
 ];
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  // Everything here is read live from the database.
+  const [
+    programs,
+    ventures,
+    customPages,
+    subscribers,
+    enrollments,
+    newEnrollments,
+    messages,
+    newMessages,
+    media,
+  ] = await Promise.all([
+    getPrograms(),
+    getVentures(),
+    getCustomPages(),
+    getSubscribers(),
+    prisma.enrollment.count(),
+    prisma.enrollment.count({ where: { status: "NEW" } }),
+    prisma.contactMessage.count(),
+    prisma.contactMessage.count({ where: { status: "NEW" } }),
+    prisma.mediaAsset.count(),
+  ]);
+
+  const builtInPages =
+    NAV_SECTIONS.reduce((n, s) => n + pagesInSection(s.key), 0) + GLOBAL_LINKS.length;
+
+  const stats: {
+    label: string;
+    value: number;
+    sub?: string;
+    href: string;
+    icon: IconName;
+  }[] = [
+    { label: "Sections", value: NAV_SECTIONS.length, href: "/admin/sections", icon: "sections" },
+    {
+      label: "Pages",
+      value: builtInPages + customPages.length,
+      sub: customPages.length > 0 ? `${customPages.length} custom` : undefined,
+      href: "/admin/pages",
+      icon: "pages",
+    },
+    { label: "Programs", value: programs.length, href: "/admin/training", icon: "training" },
+    { label: "Ventures", value: ventures.length, href: "/admin/ventures", icon: "sections" },
+    {
+      label: "Enrollments",
+      value: enrollments,
+      sub: newEnrollments > 0 ? `${newEnrollments} new` : undefined,
+      href: "/admin/enrollments",
+      icon: "enrollments",
+    },
+    {
+      label: "Messages",
+      value: messages,
+      sub: newMessages > 0 ? `${newMessages} new` : undefined,
+      href: "/admin/messages",
+      icon: "mail",
+    },
+    { label: "Subscribers", value: subscribers.length, href: "/admin/subscribers", icon: "articles" },
+    { label: "Media", value: media, href: "/admin/media", icon: "media" },
+  ];
+
   return (
     <div>
       <PageHeader
@@ -27,14 +88,20 @@ export default function AdminDashboard() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STATS.map((s) => (
+        {stats.map((s) => (
           <Link key={s.label} href={s.href}>
             <Card className="p-5 transition-shadow hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-green-tint">
                   <AdminIcon name={s.icon} className="h-5 w-5 text-brand-green" />
                 </span>
-                <AdminIcon name="external" className="h-4 w-4 text-ink-faint" />
+                {s.sub ? (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700">
+                    {s.sub}
+                  </span>
+                ) : (
+                  <AdminIcon name="external" className="h-4 w-4 text-ink-faint" />
+                )}
               </div>
               <p className="mt-4 text-3xl font-extrabold tracking-tight text-ink">
                 {s.value}

@@ -33,3 +33,7 @@ next-env.d.ts
 
 # One-off content export (data + images) — do not commit
 /ceo-content.sql
+
+# Personal documents — never commit
+Resume*.docx
+*.docx

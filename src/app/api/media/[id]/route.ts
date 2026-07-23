@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -20,4 +21,18 @@ export async function GET(
       "Content-Length": String(bytes.length),
     },
   });
+}
+
+/** DELETE /api/media/[id] — remove an asset from the library (admin only). */
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    await prisma.mediaAsset.delete({ where: { id } });
+  } catch {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true });
 }

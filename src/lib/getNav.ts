@@ -2,14 +2,23 @@ import { prisma } from "./prisma";
 import {
   withNavDefaults,
   resolveNavSections,
+  GLOBAL_LINKS,
   type NavSectionMeta,
   type NavSection,
+  type NavLink,
 } from "./navigation";
 import { getPageStatusMap } from "./getPageStatus";
 import { isPublished } from "./pageStatus";
 import { getProgramNavLinks } from "./getPrograms";
 import { getVentureNavLinks } from "./getVentures";
 import { getCustomPages } from "./getCustomPages";
+
+/** Standalone bottom-of-sidebar links (Research, Global Experience, Contact),
+ *  filtered to the published ones. */
+export async function getGlobalLinks(): Promise<NavLink[]> {
+  const status = await getPageStatusMap();
+  return GLOBAL_LINKS.filter((l) => isPublished(status, l.href));
+}
 
 /** Editable section meta (for admin) — reads Setting key "nav", merged w/ defaults. */
 export async function getNavMeta(): Promise<NavSectionMeta[]> {

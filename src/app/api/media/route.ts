@@ -6,6 +6,25 @@ export const dynamic = "force-dynamic";
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB guard
 
 /**
+ * GET /api/media — admin listing (newest first). Returns metadata only; the
+ * `data` bytea column is deliberately excluded so the response stays small.
+ */
+export async function GET() {
+  const media = await prisma.mediaAsset.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      url: true,
+      mimeType: true,
+      alt: true,
+      sizeBytes: true,
+      createdAt: true,
+    },
+  });
+  return NextResponse.json({ media });
+}
+
+/**
  * POST /api/media — upload an image and store it in Postgres.
  * Send the raw image bytes as the body with an `image/*` Content-Type
  * (avoids multipart parsing). Optional `X-Filename` header for the alt/name.
